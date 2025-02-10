@@ -1,0 +1,17 @@
+.container-fluid {
+
+  justify-content: center; // Align horizontally
+  align-items: center; // Align vertically
+  height: 100vh;          /* Full viewport height */
+}
+
+.login-container {
+    display: inline-block;
+    text-align: center;
+    margin-top: 20%;       /* Center the text */
+}
+
+
+.login {
+    margin-top: 15%;
+}

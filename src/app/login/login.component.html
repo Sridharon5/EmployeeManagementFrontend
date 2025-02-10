@@ -1,0 +1,32 @@
+<div class="container-fluid d-flex justify-content-center align-items-center vh-100">
+  <div class="login-container p-4 shadow rounded">
+    <h2 class="text-center mb-4">Login</h2>
+    <form (ngSubmit)="onSubmit()">
+      <div class="mb-3">
+        <label for="username" class="form-label">Username:</label>
+        <input 
+          id="username" 
+          type="text" 
+          class="form-control"
+          name="username" 
+          [(ngModel)]="credentials.username" 
+          required 
+        />
+      </div>
+
+      <div class="mb-3">
+        <label for="password" class="form-label">Password:</label>
+        <input 
+          id="password" 
+          type="password" 
+          class="form-control"
+          name="password" 
+          [(ngModel)]="credentials.password" 
+          required 
+        />
+      </div>
+
+      <button type="submit" class="btn btn-primary w-100">Login</button>
+    </form>
+  </div>
+</div>
