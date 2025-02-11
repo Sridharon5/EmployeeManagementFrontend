@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class EmployeeService {
-  private apiUrl = 'http://localhost:8080/employees'; 
+  private apiUrl = 'https://employeemanagementbackend-15.onrender.com/employees'; 
 
   constructor(private http: HttpClient) { }
 

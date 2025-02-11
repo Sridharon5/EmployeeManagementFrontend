@@ -8,7 +8,7 @@ import { ChangeDetectorRef } from '@angular/core';
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:8080/auth';
+  private apiUrl = 'https://employeemanagementbackend-15.onrender.com/auth';
 
   private isAuthenticatedSubject!: BehaviorSubject<boolean>;
   isAuthenticated$!: Observable<boolean>;
