@@ -57,8 +57,6 @@ export class AuthService {
   logout() {
     localStorage.removeItem('jwtToken');
     localStorage.removeItem('userRole');
-
-    // ✅ Update BehaviorSubjects after logout
     this.isAuthenticatedSubject.next(false);
     this.userRoleSubject.next(null);
   }

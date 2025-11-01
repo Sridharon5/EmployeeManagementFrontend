@@ -1,0 +1,104 @@
+<div class="login-container">
+  <div class="auth-container">
+    <span class="text-center mb-2">
+      {{ isLoginMode ? "Login" : "User Registration" }}
+    </span>
+
+    <form *ngIf="isLoginMode" (ngSubmit)="onLogin()" [formGroup]="loginForm">
+      <div class="login-form">
+        <div class="field">
+          <label for="username" class="form-label">Username:</label>
+          <input
+            id="username"
+            type="text"
+            class="form-control"
+            name="username"
+            [(ngModel)]="credentials.username"
+            required
+          />
+        </div>
+
+        <div class="field">
+          <label for="password" class="form-label">Password:</label>
+          <input
+            id="password"
+            type="password"
+            class="form-control"
+            name="password"
+            [(ngModel)]="credentials.password"
+            required
+          />
+        </div>
+
+        <button type="submit" class="btn">Login</button>
+        <p class="text-center paragraph">
+          Don’t have an account?
+          <a href="javascript:void(0)" (click)="toggleMode()">Sign Up</a>
+        </p>
+      </div>
+    </form>
+
+    <form *ngIf="!isLoginMode" (ngSubmit)="onSignUp()" [formGroup]="signUpForm">
+      <div class="user-form">
+        <div class="field">
+          <label for="username">Username:</label>
+          <input
+            id="username"
+            formControlName="username"
+            type="text"
+            class="form-control"
+            required
+          />
+        </div>
+
+        <div class="field">
+          <label for="firstName">First Name:</label>
+          <input
+            id="firstName"
+            formControlName="firstName"
+            type="text"
+            class="form-control"
+            required
+          />
+        </div>
+
+        <div class="field">
+          <label for="lastName">Last Name:</label>
+          <input
+            id="lastName"
+            formControlName="lastName"
+            type="text"
+            class="form-control"
+            required
+          />
+        </div>
+
+        <div class="field">
+          <label for="password">Password:</label>
+          <input
+            id="password"
+            formControlName="password"
+            type="password"
+            class="form-control"
+            required
+          />
+        </div>
+
+        <button type="submit" class="btn" [disabled]="signUpForm.invalid">
+          Register
+        </button>
+
+        <p class="text-center paragraph">
+          Already have an account?
+          <a href="javascript:void(0)" (click)="toggleMode()">Log In</a>
+        </p>
+      </div>
+    </form>
+    <div *ngIf="registrationSuccess" class="alert-success">
+      Registration successful!
+    </div>
+    <div *ngIf="errorMessage" class="alert-danger">
+      {{ errorMessage }}
+    </div>
+  </div>
+</div>
