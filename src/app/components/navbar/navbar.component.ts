@@ -11,41 +11,26 @@ import { RouterOutlet } from '@angular/router';
 @Component({
   selector: 'app-navbar',
   imports:[CommonModule,RouterModule],
+  standalone:true,
   templateUrl: './navbar.component.html',
-  styleUrls: ['./navbar.component.css']
+  styleUrls: ['./navbar.component.scss']
 })
-export class NavbarComponent implements OnInit, OnDestroy {
+export class NavbarComponent implements OnInit {
   isAuthenticated = false;
   isAdmin = false;
-  private authSubscription!: Subscription;
-  private roleSubscription!: Subscription;
+
 
   constructor(private authService: AuthService, private router: Router) {}
 
   ngOnInit(): void {
-    // Start as false to prevent flickering issues
-    this.isAuthenticated = false;
-    this.isAdmin = false;
-  
-    this.authSubscription = this.authService.isAuthenticated$.subscribe(authStatus => {
-      this.isAuthenticated = authStatus;
-      console.log("Auth Status Updated:", authStatus);  // Debugging
-    });
-  
-    this.roleSubscription = this.authService.userRole$.subscribe(role => {
-      this.isAdmin = role === 'ADMIN';
-      console.log("User Role Updated:", role);  // Debugging
-    });
+    this.isAuthenticated = this.authService.getIsAuthenticated();
+    this.isAdmin=this.authService.getRole()==='ADMIN';
   }
   
-
   logout() {
-    this.authService.logout();
+  this.authService.setIsAuthenticated(false);
+  this.authService.setRole('');
+  this.authService.setJwtToken('');
     this.router.navigate(['/login']); 
-  }
-
-  ngOnDestroy(): void {
-    this.authSubscription.unsubscribe();
-    this.roleSubscription.unsubscribe();
   }
 }

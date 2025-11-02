@@ -8,64 +8,28 @@ import { ChangeDetectorRef } from '@angular/core';
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'https://employeemanagementbackend-15.onrender.com/auth';
-
-  private isAuthenticatedSubject!: BehaviorSubject<boolean>;
-  isAuthenticated$!: Observable<boolean>;
-
-  private userRoleSubject!: BehaviorSubject<string | null>;
-  userRole$!: Observable<string | null>;
-
-  constructor(private http: HttpClient) {
-    // Always start as false and update after checking localStorage
-    this.isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
-    this.isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
   
-    this.userRoleSubject = new BehaviorSubject<string | null>(null);
-    this.userRole$ = this.userRoleSubject.asObservable();
-  
-    // Now check localStorage and update correctly
-    if (this.isAuthenticated()) {
-      this.isAuthenticatedSubject.next(true);
-    }
-    if (this.getUserRole()) {
-      this.userRoleSubject.next(this.getUserRole());
-    }
+  private isAuthenticated:boolean=false;
+
+  private role:string='';
+  private jwtToken='';
+  public setIsAuthenticated(value:boolean){
+    this.isAuthenticated=value;
+  }
+  public getIsAuthenticated(){
+    return this.isAuthenticated;
+  }
+  public setRole(value:string){
+    this.role=value;
+  }
+  public getRole(){
+    return this.role;
+  }
+  public setJwtToken(value:string){
+    this.jwtToken=value;
+  }
+  public getJwtToken(){
+    return this.jwtToken;
   }
   
-
-  register(user: User): Observable<string> { 
-    return this.http.post<string>(`${this.apiUrl}/register`, user, {
-      headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
-      responseType: 'text' as 'json' 
-    });
-  }
-
-  login(username: string, password: string): Observable<{ token: string, role: string }> {
-    return this.http.post<{ token: string, role: string }>(`${this.apiUrl}/login`, { username, password })
-      .pipe(
-        tap((response) => {
-          localStorage.setItem('jwtToken', response.token);
-          localStorage.setItem('userRole', response.role);
-
-          this.isAuthenticatedSubject.next(true);
-          this.userRoleSubject.next(response.role);
-        })
-      );
-  }
-
-  logout() {
-    localStorage.removeItem('jwtToken');
-    localStorage.removeItem('userRole');
-    this.isAuthenticatedSubject.next(false);
-    this.userRoleSubject.next(null);
-  }
-
-  isAuthenticated(): boolean {
-    return !!localStorage.getItem('jwtToken');
-  }
-
-  getUserRole(): string | null {
-    return localStorage.getItem('userRole');
-  }
 }

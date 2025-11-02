@@ -1,3 +1,4 @@
 export const environment = {
-    url:''
+    employeeUrl:'http://localhost:8080/employees/',
+    authUrl:'http://localhost:8080/auth/',
 };

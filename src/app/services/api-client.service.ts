@@ -17,16 +17,23 @@ export class ApiClient {
 
   }
   
-  getUrl(url: string) {
-    return this.http.get<RestResponse>(this._getURL(url),{headers: { 'Content-Type': 'application/json' }});
+  getAuthUrl(url: string) {
+    return this.http.get<RestResponse>(this._getAuthURL(url),{headers: { 'Content-Type': 'application/json' }});
   }
  
-  public _getURL(url: string) {
-    return `${environment.url}${url}`;
+  public _getAuthURL(url: string) {
+    return `${environment.authUrl}${url}`;
+  }
+  getEmployeeUrl(url: string) {
+    return this.http.get<RestResponse>(this._getEmployeeURL(url),{headers: { 'Content-Type': 'application/json' }});
+  }
+ 
+  public _getEmployeeURL(url: string) {
+    return `${environment.employeeUrl}${url}`;
   }
  
   post(url: string, data?: any, p0?: { headers: { 'Content-Type': string; }; responseType: string; }) {
-    return this.http.post<RestResponse>(this._getURL(url), data, {
+    return this.http.post<RestResponse>(this._getAuthURL(url), data, {
       headers: { 'Content-Type': 'application/json' }
     });
   }

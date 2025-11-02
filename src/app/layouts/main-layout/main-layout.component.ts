@@ -9,7 +9,9 @@ import { RouterOutlet } from '@angular/router';
   template: `
     <div class="main-layout">
       <app-navbar class="sidebar"></app-navbar>
+      <div class="content-area">
       <router-outlet></router-outlet>
+      </div>
     </div>
     <ngx-ui-loader></ngx-ui-loader>
   `,

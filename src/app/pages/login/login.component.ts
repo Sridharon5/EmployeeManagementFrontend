@@ -25,7 +25,6 @@ export class LoginComponent {
   errorMessage: string = '';
   signUpForm!: FormGroup;
   loginForm!:FormGroup;
-  credentials = { username: '', password: '' };
 
   constructor(
     private fb: FormBuilder,
@@ -40,7 +39,7 @@ export class LoginComponent {
       lastName: ['', Validators.required],
       password: ['', Validators.required]
     });
-    this.signUpForm = this.fb.group({
+    this.loginForm = this.fb.group({
       username: ['', Validators.required],
       password: ['', Validators.required]
     });
@@ -51,9 +50,13 @@ export class LoginComponent {
       username:this.loginForm.value.username,
       password:this.loginForm.value.password,
     }
-     this.api.post('user/login', payload).subscribe({
+    this.loader.start();
+     this.api.post('login', payload).subscribe({
       next: (res: any) => {
-      console.log(res);
+      this.authService.setIsAuthenticated(true);
+      this.authService.setJwtToken(res.token);
+      this.authService.setRole(res.role);
+      this.router.navigate(['employee-list']);
       this.loader.stop();
         
       },
@@ -64,12 +67,14 @@ export class LoginComponent {
   }
   onSignUp(){
     const payload={
-      username:this.loginForm.value.username,
-      password:this.loginForm.value.password,
-      firstName:this.loginForm.value.firstName,
-      lastName:this.loginForm.value.lastName,
+      username:this.signUpForm.value.username,
+      password:this.signUpForm.value.password,
+      firstName:this.signUpForm.value.firstName,
+      lastName:this.signUpForm.value.lastName,
+      role:'USER'
     }
-     this.api.post('user/login', payload).subscribe({
+    this.loader.start();
+     this.api.post('register', payload).subscribe({
       next: (res: any) => {
       console.log(res);
       this.loader.stop();
