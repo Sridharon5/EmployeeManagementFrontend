@@ -1,35 +1,42 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TableModule } from 'primeng/table';
+import { ButtonModule } from 'primeng/button';
+import { DialogModule } from 'primeng/dialog';
 import { ApiClient } from '../../services/api-client.service';
-
+import { FormsModule } from '@angular/forms';
+import { NgxUiLoaderService } from 'ngx-ui-loader';
 @Component({
   selector: 'app-departments',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TableModule, ButtonModule, DialogModule, FormsModule],
   templateUrl: './departments.component.html',
-  styleUrls: ['./departments.component.scss']
+  styleUrls: ['./departments.component.scss'],
 })
 export class DepartmentsComponent implements OnInit {
   departments: any[] = [];
   selectedDepartment: any = null;
   dialogVisible: boolean = false;
-  dialogMode: 'view' | 'edit' | 'delete' | null = null;
+  dialogMode: 'view' | 'edit' | 'delete' | '' = '';
 
-  constructor(private api: ApiClient) {}
+  constructor(private api: ApiClient, private loader: NgxUiLoaderService) {}
 
   ngOnInit(): void {
-    this.fetchDepartments();
+    this.getAllDepartments();
   }
 
-  fetchDepartments() {
-    // this.api.get('departments').subscribe({
-    //   next: (res: any) => {
-    //     this.departments = res.data || res; // Adjust based on backend response
-    //   },
-    //   error: (err) => {
-    //     console.error('Error fetching departments', err);
-    //   }
-    // });
+  getAllDepartments() {
+    this.loader.start();
+    this.api.getDepartmentUrl('getAllDepartments').subscribe({
+      next: (res: any) => {
+        this.departments = res.data || res;
+        this.loader.stop();
+      },
+      error: (err) => {
+        console.error('Error fetching departments', err);
+        this.loader.stop();
+      },
+    });
   }
 
   openDialog(dept: any, mode: 'view' | 'edit' | 'delete') {
@@ -40,30 +47,44 @@ export class DepartmentsComponent implements OnInit {
 
   closeDialog() {
     this.dialogVisible = false;
-    this.dialogMode = null;
+    this.dialogMode = '';
   }
 
   confirmDelete() {
     if (!this.selectedDepartment) return;
-    // this.api.delete(`departments/${this.selectedDepartment.id}`).subscribe({
-    //   next: () => {
-    //     this.fetchDepartments();
-    //     this.closeDialog();
-    //   },
-    //   error: (err) => console.error('Delete failed', err)
-    // });
+    this.loader.start();
+    this.api
+      .getEmployeeUrl(`departments/${this.selectedDepartment.id}`)
+      .subscribe({
+        next: () => {
+          this.getAllDepartments();
+          this.closeDialog();
+          this.loader.stop();
+        },
+        error: (err) => {
+          console.error('Delete failed', err), this.loader.stop();
+        },
+      });
   }
 
   saveChanges() {
     if (this.dialogMode === 'edit') {
-      // this.api.put(`departments/${this.selectedDepartment.id}`, this.selectedDepartment)
-      //   .subscribe({
-      //     next: () => {
-      //       this.fetchDepartments();
-      //       this.closeDialog();
-      //     },
-      //     error: (err) => console.error('Update failed', err)
-      //   });
+      this.loader.start();
+      this.api
+        .post(
+          `departments/${this.selectedDepartment.id}`,
+          this.selectedDepartment
+        )
+        .subscribe({
+          next: () => {
+            this.getAllDepartments();
+            this.closeDialog();
+            this.loader.stop();
+          },
+          error: (err) => {
+            console.error('Update failed', err), this.loader.stop();
+          },
+        });
     }
   }
 }

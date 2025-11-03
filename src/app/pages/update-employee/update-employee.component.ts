@@ -8,7 +8,7 @@ import { FormsModule } from '@angular/forms';
   selector: 'app-update-employee',
   imports:[CommonModule,FormsModule],
   templateUrl: './update-employee.component.html',
-  styleUrls: ['./update-employee.component.css']
+  styleUrls: ['./update-employee.component.scss']
 })
 export class UpdateEmployeeComponent implements OnInit {
   employee: Employee = {

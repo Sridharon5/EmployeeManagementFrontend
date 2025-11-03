@@ -12,7 +12,7 @@ import { NgxUiLoaderService } from 'ngx-ui-loader';
   templateUrl: './employee-list.component.html',
   standalone:true,
   imports: [RouterModule, CommonModule],
-  styleUrls: ['./employee-list.component.css']
+  styleUrls: ['./employee-list.component.scss']
 })
 export class EmployeeListComponent implements OnInit {
   employees: any[] = []; 

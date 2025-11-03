@@ -1,5 +1,5 @@
 <div class="department-container">
-  <p-table [value]="departments" [paginator]="true" [rows]="5" responsiveLayout="scroll">
+  <p-table [value]="departments" [paginator]="true" [rows]="10" responsiveLayout="scroll">
     <ng-template pTemplate="header">
       <tr>
         <th>ID</th>
@@ -15,14 +15,14 @@
         <td>{{ dept.id }}</td>
         <td>{{ dept.name }}</td>
         <td>{{ dept.description }}</td>
-        <td>{{ dept.created_at | date: 'medium' }}</td>
+        <td>{{ dept.createdAt | date: 'medium' }}</td>
         <td>
           <button pButton icon="pi pi-eye" class="p-button-text p-button-info"
-                  (click)="openDialog(dept, 'view')"></button>
+                  (click)="openDialog(dept, 'view')">VIEW</button>
           <button pButton icon="pi pi-pencil" class="p-button-text p-button-warning"
-                  (click)="openDialog(dept, 'edit')"></button>
+                  (click)="openDialog(dept, 'edit')">EDIT</button>
           <button pButton icon="pi pi-trash" class="p-button-text p-button-danger"
-                  (click)="openDialog(dept, 'delete')"></button>
+                  (click)="openDialog(dept, 'delete')">DELETE</button>
         </td>
       </tr>
     </ng-template>

@@ -20,6 +20,12 @@ export class ApiClient {
   getAuthUrl(url: string) {
     return this.http.get<RestResponse>(this._getAuthURL(url),{headers: { 'Content-Type': 'application/json' }});
   }
+  getDepartmentUrl(url: string) {
+    return this.http.get<RestResponse>(this._getDepartmentURL(url),{headers: { 'Content-Type': 'application/json' }});
+  }
+  public _getDepartmentURL(url: string) {
+    return `${environment.departmentUrl}${url}`;
+  }
  
   public _getAuthURL(url: string) {
     return `${environment.authUrl}${url}`;
