@@ -56,7 +56,7 @@ export class LoginComponent {
       this.authService.setIsAuthenticated(true);
       this.authService.setJwtToken(res.token);
       this.authService.setRole(res.role);
-      this.router.navigate(['employee-list']);
+      this.router.navigate(['dashboard']);
       this.loader.stop();
         
       },

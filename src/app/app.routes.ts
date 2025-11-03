@@ -9,6 +9,8 @@ import { AuthGuard } from './guards/auth.guard';
 import { AdminGuard } from './guards/admin.guard';
 import { LoginLayoutComponent } from './layouts/login-layout/login-layout.component';
 import { MainLayoutComponent } from './layouts/main-layout/main-layout.component';
+import { DashboardComponent } from './pages/dashboard/dashboard.component';
+import { DepartmentsComponent } from './pages/departments/departments.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -25,6 +27,14 @@ export const routes: Routes = [
       {
         path: 'employee-list',
         component: EmployeeListComponent /*, canActivate: [AuthGuard] */,
+      },
+      {
+        path: 'dashboard',
+        component: DashboardComponent /*, canActivate: [AuthGuard] */,
+      },
+      {
+        path: 'departments',
+        component: DepartmentsComponent /*, canActivate: [AuthGuard] */,
       },
       {
         path: 'add-employee',

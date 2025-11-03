@@ -1,35 +1,55 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
-import { User } from '../models/user.model';
-import { ChangeDetectorRef } from '@angular/core';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  
-  private isAuthenticated:boolean=false;
+  private isAuthenticated = false;
+  private role = '';
+  private jwtToken = '';
 
-  private role:string='';
-  private jwtToken='';
-  public setIsAuthenticated(value:boolean){
-    this.isAuthenticated=value;
+  constructor() {
+    // Load from localStorage when service is created
+    const storedAuth = localStorage.getItem('isAuthenticated');
+    const storedRole = localStorage.getItem('role');
+    const storedToken = localStorage.getItem('jwtToken');
+
+    this.isAuthenticated = storedAuth === 'true';
+    this.role = storedRole || '';
+    this.jwtToken = storedToken || '';
   }
-  public getIsAuthenticated(){
+
+  setIsAuthenticated(value: boolean) {
+    this.isAuthenticated = value;
+    localStorage.setItem('isAuthenticated', String(value));
+  }
+
+  getIsAuthenticated(): boolean {
     return this.isAuthenticated;
   }
-  public setRole(value:string){
-    this.role=value;
+
+  setRole(value: string) {
+    this.role = value;
+    localStorage.setItem('role', value);
   }
-  public getRole(){
+
+  getRole(): string {
     return this.role;
   }
-  public setJwtToken(value:string){
-    this.jwtToken=value;
+
+  setJwtToken(value: string) {
+    this.jwtToken = value;
+    localStorage.setItem('jwtToken', value);
   }
-  public getJwtToken(){
+
+  getJwtToken(): string {
     return this.jwtToken;
   }
-  
+
+  logout() {
+    this.isAuthenticated = false;
+    this.role = '';
+    this.jwtToken = '';
+    localStorage.clear();
+  }
 }

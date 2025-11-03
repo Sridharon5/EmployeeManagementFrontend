@@ -1,12 +1,29 @@
 <div class="sidebar">
   <div class="logo">
-    <img id="logo" src="/logo.png" alt="Logo" />
+    <img id="logo" src="/image.png" alt="Logo" />
   </div>
 
   <nav class="nav-links">
     <a
       class="nav-item"
-      routerLink="/home"
+      routerLink="/dashboard"
+      routerLinkActive="active"
+    >
+      <i class="bi bi-suit-heart-fill icon"></i>
+      <span>Dashboard</span>
+    </a>
+    <a
+      class="nav-item"
+      routerLink="/departments"
+      routerLinkActive="active"
+    >
+      <i class="bi bi-suit-heart-fill icon"></i>
+      <span>Departments</span>
+    </a>
+
+    <a
+      class="nav-item"
+      routerLink="/employee-list"
       routerLinkActive="active"
       [routerLinkActiveOptions]="{ exact: true }"
     >
@@ -14,14 +31,7 @@
       <span>Employees</span>
     </a>
 
-    <a
-      class="nav-item"
-      routerLink="/liked"
-      routerLinkActive="active"
-    >
-      <i class="bi bi-suit-heart-fill icon"></i>
-      <span>Departments</span>
-    </a>
+        
   </nav>
 
   <!-- LOGOUT BUTTON -->

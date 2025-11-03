@@ -1,4 +1,4 @@
 export const environment = {
-    employeeUrl:'https://employeemanagementbackend-9.onrender.com/employees/',
-    authUrl:'https://employeemanagementbackend-9.onrender.com/auth/'
+    employeeUrl:'http://localhost:8080/employees/',
+    authUrl:'http://localhost:8080/auth/'
 };

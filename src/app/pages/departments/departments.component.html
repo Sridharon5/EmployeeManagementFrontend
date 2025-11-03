@@ -1,0 +1,60 @@
+<div class="department-container">
+  <p-table [value]="departments" [paginator]="true" [rows]="5" responsiveLayout="scroll">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Created At</th>
+        <th>Action</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-dept>
+      <tr>
+        <td>{{ dept.id }}</td>
+        <td>{{ dept.name }}</td>
+        <td>{{ dept.description }}</td>
+        <td>{{ dept.created_at | date: 'medium' }}</td>
+        <td>
+          <button pButton icon="pi pi-eye" class="p-button-text p-button-info"
+                  (click)="openDialog(dept, 'view')"></button>
+          <button pButton icon="pi pi-pencil" class="p-button-text p-button-warning"
+                  (click)="openDialog(dept, 'edit')"></button>
+          <button pButton icon="pi pi-trash" class="p-button-text p-button-danger"
+                  (click)="openDialog(dept, 'delete')"></button>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <!-- Dialog -->
+  <p-dialog [(visible)]="dialogVisible" [modal]="true" [style]="{width: '400px'}" [header]="dialogMode | titlecase">
+    <ng-container *ngIf="dialogMode === 'view'">
+      <p><b>ID:</b> {{ selectedDepartment.id }}</p>
+      <p><b>Name:</b> {{ selectedDepartment.name }}</p>
+      <p><b>Description:</b> {{ selectedDepartment.description }}</p>
+      <p><b>Created At:</b> {{ selectedDepartment.created_at | date:'medium' }}</p>
+    </ng-container>
+
+    <ng-container *ngIf="dialogMode === 'edit'">
+      <div class="form-group">
+        <label>Name:</label>
+        <input type="text" [(ngModel)]="selectedDepartment.name" class="p-inputtext p-component" />
+      </div>
+      <div class="form-group">
+        <label>Description:</label>
+        <textarea [(ngModel)]="selectedDepartment.description" class="p-inputtext p-component"></textarea>
+      </div>
+      <button pButton label="Save" icon="pi pi-check" (click)="saveChanges()"></button>
+    </ng-container>
+
+    <ng-container *ngIf="dialogMode === 'delete'">
+      <p>Are you sure you want to delete <b>{{ selectedDepartment.name }}</b>?</p>
+      <div class="p-d-flex p-jc-end p-mt-3">
+        <button pButton label="Cancel" icon="pi pi-times" class="p-button-text" (click)="closeDialog()"></button>
+        <button pButton label="Delete" icon="pi pi-trash" class="p-button-danger" (click)="confirmDelete()"></button>
+      </div>
+    </ng-container>
+  </p-dialog>
+</div>
