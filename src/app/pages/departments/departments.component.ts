@@ -17,7 +17,7 @@ export class DepartmentsComponent implements OnInit {
   departments: any[] = [];
   selectedDepartment: any = null;
   dialogVisible: boolean = false;
-  dialogMode: 'view' | 'edit' | 'delete' | '' = '';
+  dialogMode: 'view' | 'edit' | 'delete' | 'add' | '' = '';
 
   constructor(private api: ApiClient, private loader: NgxUiLoaderService) {}
 
@@ -27,7 +27,7 @@ export class DepartmentsComponent implements OnInit {
 
   getAllDepartments() {
     this.loader.start();
-    this.api.getDepartmentUrl('getAllDepartments').subscribe({
+    this.api.get('departments/getAllDepartments').subscribe({
       next: (res: any) => {
         this.departments = res.data || res;
         this.loader.stop();
@@ -39,8 +39,11 @@ export class DepartmentsComponent implements OnInit {
     });
   }
 
-  openDialog(dept: any, mode: 'view' | 'edit' | 'delete') {
+  openDialog(dept: any, mode: 'view' | 'add' | 'edit' | 'delete') {
     this.selectedDepartment = { ...dept };
+    if (mode === 'add') {
+       this.selectedDepartment = { name: '', description: '' };
+    }
     this.dialogMode = mode;
     this.dialogVisible = true;
   }
@@ -54,7 +57,7 @@ export class DepartmentsComponent implements OnInit {
     if (!this.selectedDepartment) return;
     this.loader.start();
     this.api
-      .getEmployeeUrl(`departments/${this.selectedDepartment.id}`)
+      .get(`departments/delete/${this.selectedDepartment.id}`)
       .subscribe({
         next: () => {
           this.getAllDepartments();
@@ -62,7 +65,8 @@ export class DepartmentsComponent implements OnInit {
           this.loader.stop();
         },
         error: (err) => {
-          console.error('Delete failed', err), this.loader.stop();
+          console.error('Delete failed', err), 
+          this.loader.stop();
         },
       });
   }
@@ -70,21 +74,36 @@ export class DepartmentsComponent implements OnInit {
   saveChanges() {
     if (this.dialogMode === 'edit') {
       this.loader.start();
+      console.log(this.selectedDepartment);
       this.api
         .post(
-          `departments/${this.selectedDepartment.id}`,
+          `departments/edit/${this.selectedDepartment.id}`,
           this.selectedDepartment
         )
         .subscribe({
           next: () => {
+             this.closeDialog();
             this.getAllDepartments();
-            this.closeDialog();
-            this.loader.stop();
+           
+            
           },
           error: (err) => {
             console.error('Update failed', err), this.loader.stop();
           },
         });
     }
+  }
+  addDepartment() {
+    this.loader.start();
+    this.api.post('departments/add', this.selectedDepartment).subscribe({
+      next: () => {
+        this.getAllDepartments();
+        this.closeDialog();
+        this.loader.stop();
+      },
+      error: (err) => {
+        console.error('Update failed', err), this.loader.stop();
+      },
+    });
   }
 }

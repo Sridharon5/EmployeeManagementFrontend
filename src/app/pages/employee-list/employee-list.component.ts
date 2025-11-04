@@ -30,7 +30,7 @@ export class EmployeeListComponent implements OnInit {
 
   getEmployees(): void {
     this.loader.start();
-    this.api.getEmployeeUrl('employees').subscribe({
+    this.api.get('employees').subscribe({
       next: (res: any) => {
       this.employees=res.data;
       this.loader.stop();

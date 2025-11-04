@@ -51,7 +51,7 @@ export class LoginComponent {
       password:this.loginForm.value.password,
     }
     this.loader.start();
-     this.api.post('login', payload).subscribe({
+     this.api.post('auth/login', payload).subscribe({
       next: (res: any) => {
       this.authService.setIsAuthenticated(true);
       this.authService.setJwtToken(res.token);
@@ -74,7 +74,7 @@ export class LoginComponent {
       role:'USER'
     }
     this.loader.start();
-     this.api.post('register', payload).subscribe({
+     this.api.post('auth/register', payload).subscribe({
       next: (res: any) => {
       console.log(res);
       this.loader.stop();

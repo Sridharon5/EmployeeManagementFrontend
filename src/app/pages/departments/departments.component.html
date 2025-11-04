@@ -1,12 +1,20 @@
 <div class="department-container">
-  <p-table [value]="departments" [paginator]="true" [rows]="10" responsiveLayout="scroll">
+  <div class="add-department-container">
+    <p-button label="ADD DEPARTMENT" (click)="openDialog(selectedDepartment, 'add')"></p-button>
+  </div>
+  <p-table
+    [value]="departments"
+    [paginator]="true"
+    [rows]="10"
+    responsiveLayout="scroll"
+  >
     <ng-template pTemplate="header">
       <tr>
-        <th>ID</th>
-        <th>Name</th>
-        <th>Description</th>
-        <th>Created At</th>
-        <th>Action</th>
+        <th style="width: 5%">ID</th>
+        <th style="width: 10%">Name</th>
+        <th style="width: 40%">Description</th>
+        <th style="width: 20%">Created At</th>
+        <th style="width: 25%">Action</th>
       </tr>
     </ng-template>
 
@@ -15,46 +23,121 @@
         <td>{{ dept.id }}</td>
         <td>{{ dept.name }}</td>
         <td>{{ dept.description }}</td>
-        <td>{{ dept.createdAt | date: 'medium' }}</td>
+        <td>{{ dept.createdAt | date : "medium" }}</td>
         <td>
-          <button pButton icon="pi pi-eye" class="p-button-text p-button-info"
-                  (click)="openDialog(dept, 'view')">VIEW</button>
-          <button pButton icon="pi pi-pencil" class="p-button-text p-button-warning"
-                  (click)="openDialog(dept, 'edit')">EDIT</button>
-          <button pButton icon="pi pi-trash" class="p-button-text p-button-danger"
-                  (click)="openDialog(dept, 'delete')">DELETE</button>
+          <div class="actions-container">
+            <p-button icon="pi pi-eye" (click)="openDialog(dept, 'view')"
+              >VIEW</p-button
+            >
+            <p-button icon="pi pi-pencil" (click)="openDialog(dept, 'edit')"
+              >EDIT</p-button
+            >
+            <p-button icon="pi pi-trash" (click)="openDialog(dept, 'delete')"
+              >DELETE</p-button
+            >
+          </div>
         </td>
       </tr>
     </ng-template>
   </p-table>
-
-  <!-- Dialog -->
-  <p-dialog [(visible)]="dialogVisible" [modal]="true" [style]="{width: '400px'}" [header]="dialogMode | titlecase">
-    <ng-container *ngIf="dialogMode === 'view'">
-      <p><b>ID:</b> {{ selectedDepartment.id }}</p>
-      <p><b>Name:</b> {{ selectedDepartment.name }}</p>
-      <p><b>Description:</b> {{ selectedDepartment.description }}</p>
-      <p><b>Created At:</b> {{ selectedDepartment.created_at | date:'medium' }}</p>
-    </ng-container>
-
-    <ng-container *ngIf="dialogMode === 'edit'">
-      <div class="form-group">
-        <label>Name:</label>
-        <input type="text" [(ngModel)]="selectedDepartment.name" class="p-inputtext p-component" />
-      </div>
-      <div class="form-group">
-        <label>Description:</label>
-        <textarea [(ngModel)]="selectedDepartment.description" class="p-inputtext p-component"></textarea>
-      </div>
-      <button pButton label="Save" icon="pi pi-check" (click)="saveChanges()"></button>
-    </ng-container>
-
-    <ng-container *ngIf="dialogMode === 'delete'">
-      <p>Are you sure you want to delete <b>{{ selectedDepartment.name }}</b>?</p>
-      <div class="p-d-flex p-jc-end p-mt-3">
-        <button pButton label="Cancel" icon="pi pi-times" class="p-button-text" (click)="closeDialog()"></button>
-        <button pButton label="Delete" icon="pi pi-trash" class="p-button-danger" (click)="confirmDelete()"></button>
-      </div>
-    </ng-container>
-  </p-dialog>
 </div>
+<!-- Dialog boxes-->
+<p-dialog
+  [(visible)]="dialogVisible"
+  [modal]="true"
+  [style]="{ width: '400px' }"
+  [header]="dialogMode | titlecase"
+>
+  <!-- 🔹 VIEW MODE -->
+  <ng-container *ngIf="dialogMode === 'view'">
+    <p><b>ID:</b> {{ selectedDepartment.id }}</p>
+    <p><b>Name:</b> {{ selectedDepartment.name }}</p>
+    <p><b>Description:</b> {{ selectedDepartment.description }}</p>
+    <p>
+      <b>Created At:</b> {{ selectedDepartment.createdAt | date : "medium" }}
+    </p>
+  </ng-container>
+
+
+   <!-- 🔹 ADD MODE -->
+  <ng-container *ngIf="dialogMode === 'add'">
+    <div class="form-group">
+      <label>Name:</label>
+      <input
+        type="text"
+        [(ngModel)]="selectedDepartment.name"
+        class="p-inputtext p-component"
+      />
+    </div>
+    <div class="form-group">
+      <label>Description:</label>
+      <textarea
+        [(ngModel)]="selectedDepartment.description"
+        class="p-inputtext p-component"
+      ></textarea>
+    </div>
+  </ng-container>
+
+
+  <!-- 🔹 EDIT MODE -->
+  <ng-container *ngIf="dialogMode === 'edit'">
+    <div class="form-group">
+      <label>Name:</label>
+      <input
+        type="text"
+        [(ngModel)]="selectedDepartment.name"
+        class="p-inputtext p-component"
+      />
+    </div>
+    <div class="form-group">
+      <label>Description:</label>
+      <textarea
+        [(ngModel)]="selectedDepartment.description"
+        class="p-inputtext p-component"
+      ></textarea>
+    </div>
+  </ng-container>
+
+  <!-- 🔹 DELETE MODE -->
+  <ng-container *ngIf="dialogMode === 'delete'">
+    <p>
+      Are you sure you want to delete
+      <b>{{ selectedDepartment.name }}</b
+      >?
+    </p>
+  </ng-container>
+
+  <!-- 🔹 FOOTER BUTTONS -->
+  <ng-template pTemplate="footer">
+    <div class="dialog-footer">
+      <p-button
+        *ngIf="dialogMode === 'edit'"
+        label="Save"
+        icon="pi pi-check"
+        (click)="saveChanges()"
+      ></p-button>
+      
+      <p-button
+        *ngIf="dialogMode === 'add'"
+        label="Add"
+        icon="pi pi-check"
+        (click)="addDepartment()"
+      ></p-button>
+
+      <div *ngIf="dialogMode === 'delete'" class="delete-actions">
+        <p-button
+          label="Cancel"
+          icon="pi pi-times"
+          class="p-button-text"
+          (click)="closeDialog()"
+        ></p-button>
+        <p-button
+          label="Delete"
+          icon="pi pi-trash"
+          class="p-button-danger"
+          (click)="confirmDelete()"
+        ></p-button>
+      </div>
+    </div>
+  </ng-template>
+</p-dialog>
