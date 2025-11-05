@@ -1,0 +1,143 @@
+<div class="designation-container">
+  <div class="add-designation-container">
+    <p-button label="ADD DESIGNATION" (click)="openDialog(selectedDesignation, 'add')"></p-button>
+  </div>
+  <p-table
+    [value]="designations"
+    [paginator]="true"
+    [rows]="5"
+    responsiveLayout="scroll"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width: 5%">ID</th>
+        <th style="width: 10%">Title</th>
+        <th style="width: 40%">Department</th>
+        <th style="width: 20%">Created At</th>
+        <th style="width: 25%">Action</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-desig>
+      <tr>
+        <td>{{ desig.id }}</td>
+        <td>{{ desig.title }}</td>
+        <td>{{ desig.department.name}}</td>
+        <td>{{ desig.createdAt | date : "medium" }}</td>
+        <td>
+          <div class="actions-container">
+            <p-button icon="pi pi-eye" (click)="openDialog(desig, 'view')"
+              >VIEW</p-button
+            >
+            <p-button icon="pi pi-pencil" (click)="openDialog(desig, 'edit')"
+              >EDIT</p-button
+            >
+            <p-button icon="pi pi-trash" (click)="openDialog(desig, 'delete')"
+              >DELETE</p-button
+            >
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+<!-- Dialog boxes-->
+<p-dialog
+  [(visible)]="dialogVisible"
+  [modal]="true"
+  [style]="{ width: '400px' }"
+  [header]="dialogMode | titlecase"
+>
+  <!-- 🔹 VIEW MODE -->
+  <ng-container *ngIf="dialogMode === 'view'">
+    <p><b>ID:</b> {{ selectedDesignation.id }}</p>
+    <p><b>Title:</b> {{ selectedDesignation.name }}</p>
+    <p><b>Department:</b> {{ selectedDesignation.department.name }}</p>
+    <p>
+      <b>Created At:</b> {{ selectedDesignation.createdAt | date : "medium" }}
+    </p>
+  </ng-container>
+
+
+   <!-- 🔹 ADD MODE -->
+  <ng-container *ngIf="dialogMode === 'add'">
+    <div class="form-group">
+      <label>Title:</label>
+      <input
+        type="text"
+        [(ngModel)]="selectedDesignation.title"
+        class="p-inputtext p-component"
+      />
+    </div>
+    <div class="form-group">
+      <label>Department:</label>
+      <textarea
+        [(ngModel)]="selectedDesignation.department"
+        class="p-inputtext p-component"
+      ></textarea>
+    </div>
+  </ng-container>
+
+
+  <!-- 🔹 EDIT MODE -->
+  <ng-container *ngIf="dialogMode === 'edit'">
+    <div class="form-group">
+      <label>Title:</label>
+      <input
+        type="text"
+        [(ngModel)]="selectedDesignation.name"
+        class="p-inputtext p-component"
+      />
+    </div>
+    <div class="form-group">
+      <label>Department:</label>
+      <textarea
+        [(ngModel)]="selectedDesignation.department.name"
+        class="p-inputtext p-component"
+      ></textarea>
+    </div>
+  </ng-container>
+
+  <!-- 🔹 DELETE MODE -->
+  <ng-container *ngIf="dialogMode === 'delete'">
+    <p>
+      Are you sure you want to delete
+      <b>{{ selectedDesignation.name }}</b
+      >?
+    </p>
+  </ng-container>
+
+  <!-- 🔹 FOOTER BUTTONS -->
+  <ng-template pTemplate="footer">
+    <div class="dialog-footer">
+      <p-button
+        *ngIf="dialogMode === 'edit'"
+        label="Save"
+        icon="pi pi-check"
+        (click)="saveChanges()"
+      ></p-button>
+      
+      <p-button
+        *ngIf="dialogMode === 'add'"
+        label="Add"
+        icon="pi pi-check"
+        (click)="addDesignation()"
+      ></p-button>
+
+      <div *ngIf="dialogMode === 'delete'" class="delete-actions">
+        <p-button
+          label="Cancel"
+          icon="pi pi-times"
+          class="p-button-text"
+          (click)="closeDialog()"
+        ></p-button>
+        <p-button
+          label="Delete"
+          icon="pi pi-trash"
+          class="p-button-danger"
+          (click)="confirmDelete()"
+        ></p-button>
+      </div>
+    </div>
+  </ng-template>
+</p-dialog>
