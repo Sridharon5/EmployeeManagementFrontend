@@ -1,15 +1,15 @@
 .designation-container {
   flex: 1;
   display: flex;
-  flex-direction:column;
-  gap:1rem;
+  flex-direction: column;
+  gap: 1rem;
   padding: 1.5rem;
   background-color: #f8f9ff;
   height: 100vh;
 }
-.add-designation-container{
-  display:flex;
-  align-items:flex-end;
+.add-designation-container {
+  display: flex;
+  align-items: flex-end;
   justify-content: flex-end;
 }
 
@@ -18,16 +18,14 @@
   border-radius: 0.625rem;
   background: #fff;
   color: #000;
- padding:0.5rem;
+  padding: 0.5rem;
+  z-index: 1050 !important;
   .p-dialog-header {
     font-weight: 600;
     text-align: center;
-   
   }
 
   .p-dialog-content {
-    
-
     p {
       margin: 0.5rem 0;
       font-size: 0.95rem;
@@ -56,8 +54,6 @@
         }
       }
     }
-
-  
   }
 
   .p-dialog-footer {
@@ -156,19 +152,18 @@
     margin: 0;
   }
 }
-::ng-deep .p-dialog-header{
-  p-button{
-    border:none !important;
+::ng-deep .p-dialog-header {
+  p-button {
+    border: none !important;
     background-color: white !important;
-    color:black;
-    font-weight:600  !important;
-    
+    color: black;
+    font-weight: 600 !important;
   }
 }
-.delete-actions{
-  display:flex;
-  gap:1rem;
-  p-button{
-    padding:0rem !important;
+.delete-actions {
+  display: flex;
+  gap: 1rem;
+  p-button {
+    padding: 0rem !important;
   }
 }
