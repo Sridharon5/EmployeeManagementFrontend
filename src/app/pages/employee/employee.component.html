@@ -1,0 +1,174 @@
+<div class="employee-container">
+  <div class="add-employee-container">
+    <p-button
+      label="ADD EMPLOYEE"
+      (click)="openDialog(selectedEmployee, 'add')"
+    ></p-button>
+  </div>
+  <p-table
+    [value]="employees"
+    [paginator]="true"
+    [rows]="5"
+    responsiveLayout="scroll"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width: 5%">ID</th>
+        <th style="width: 20%">Name</th>
+        <th style="width: 30%">Department</th>
+        <th style="width: 20%">Designation</th>
+        <th style="width: 25%">Action</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-employee>
+      <tr>
+        <td>{{ employee?.id }}</td>
+        <td>{{ employee?.user?.firstName + " " + employee?.user?.lastName }}</td>
+        <td>{{ employee?.department?.name }}</td>
+        <td>{{ employee?.designation?.title }}</td>
+        <td>
+          <div class="actions-container">
+            <p-button icon="pi pi-eye" (click)="openDialog(employee, 'view')"
+              >VIEW</p-button
+            >
+            <p-button icon="pi pi-pencil" (click)="openDialog(employee, 'edit')"
+              >EDIT</p-button
+            >
+            <p-button
+              icon="pi pi-trash"
+              (click)="openDialog(employee, 'delete')"
+              >DELETE</p-button
+            >
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+<!-- Dialog boxes-->
+<p-dialog
+  [(visible)]="dialogVisible"
+  [modal]="true"
+  [style]="{ width: '400px' }"
+  [header]="dialogMode | titlecase"
+>
+  <!-- 🔹 VIEW MODE -->
+  <ng-container *ngIf="dialogMode === 'view'">
+    <p><b>ID:</b> {{ selectedEmployee.id }}</p>
+    <p><b>Name:</b> {{ selectedEmployee.user?.firstName + " " + selectedEmployee.user?.lastName }}</p>
+    <p><b>Department:</b> {{ selectedEmployee.department.name }}</p>
+    <p><b>Designation:</b> {{ selectedEmployee.designation.title }}</p>
+  </ng-container>
+
+  <!-- 🔹 ADD MODE -->
+  <ng-container *ngIf="dialogMode === 'add'">
+    <div class="form-group">
+      <label>First Name:</label>
+      <input
+        type="text"
+        [(ngModel)]="selectedEmployee.user.firstName"
+        class="p-inputtext p-component"
+      />
+    </div>
+    <div class="form-group">
+      <label>Last Name:</label>
+      <input
+        type="text"
+        [(ngModel)]="selectedEmployee.user.lastName"
+        class="p-inputtext p-component"
+      />
+    </div>
+    <div class="form-group">
+      <label>Department:</label>
+      <textarea
+        [(ngModel)]="selectedEmployee.department.name"
+        class="p-inputtext p-component"
+      ></textarea>
+    </div>
+    <div class="form-group">
+      <label>Designation:</label>
+      <textarea
+        [(ngModel)]="selectedEmployee.designation.title"
+        class="p-inputtext p-component"
+      ></textarea>
+    </div>
+  </ng-container>
+
+  <!-- 🔹 EDIT MODE -->
+  <ng-container *ngIf="dialogMode === 'edit'">
+    <div class="form-group">
+      <label>First Name:</label>
+      <input
+        type="text"
+        [(ngModel)]="selectedEmployee.user.firstName"
+        class="p-inputtext p-component"
+      />
+    </div>
+        <div class="form-group">
+      <label>Last Name:</label>
+      <input
+        type="text"
+        [(ngModel)]="selectedEmployee.user.lastName"
+        class="p-inputtext p-component"
+      />
+    </div>
+    <div class="form-group">
+      <label>Department:</label>
+      <textarea
+        [(ngModel)]="selectedEmployee.department.name"
+        class="p-inputtext p-component"
+      ></textarea>
+    </div>
+    <div class="form-group">
+      <label>Designation:</label>
+      <textarea
+        [(ngModel)]="selectedEmployee.designation.title"
+        class="p-inputtext p-component"
+      ></textarea>
+    </div>
+  </ng-container>
+
+  <!-- 🔹 DELETE MODE -->
+  <ng-container *ngIf="dialogMode === 'delete'">
+    <p>
+      Are you sure you want to delete
+      <b>{{ selectedEmployee.name }}</b
+      >?
+    </p>
+  </ng-container>
+
+  <!-- 🔹 FOOTER BUTTONS -->
+  <ng-template pTemplate="footer">
+    <div class="dialog-footer">
+      <p-button
+        *ngIf="dialogMode === 'edit'"
+        label="Save"
+        icon="pi pi-check"
+        (click)="saveChanges()"
+      ></p-button>
+
+      <p-button
+        *ngIf="dialogMode === 'add'"
+        label="Add"
+        icon="pi pi-check"
+        (click)="addEmployee()"
+      ></p-button>
+
+      <div *ngIf="dialogMode === 'delete'" class="delete-actions">
+        <p-button
+          label="Cancel"
+          icon="pi pi-times"
+          class="p-button-text"
+          (click)="closeDialog()"
+        ></p-button>
+        <p-button
+          label="Delete"
+          icon="pi pi-trash"
+          class="p-button-danger"
+          (click)="confirmDelete()"
+        ></p-button>
+      </div>
+    </div>
+  </ng-template>
+</p-dialog>

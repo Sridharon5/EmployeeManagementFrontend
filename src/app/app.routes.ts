@@ -1,6 +1,4 @@
-
 import { Routes } from '@angular/router';
-import { EmployeeListComponent } from './pages/employee-list/employee-list.component';
 import { LoginComponent } from './pages/login/login.component';
 import { AuthGuard } from './guards/auth.guard';
 import { LoginLayoutComponent } from './layouts/login-layout/login-layout.component';
@@ -8,6 +6,7 @@ import { MainLayoutComponent } from './layouts/main-layout/main-layout.component
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { DepartmentsComponent } from './pages/departments/departments.component';
 import { DesignationComponent } from './pages/designation/designation.component';
+import { EmployeeComponent } from './pages/employee/employee.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -22,8 +21,8 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
     children: [
       {
-        path: 'employee-list',
-        component: EmployeeListComponent /*, canActivate: [AuthGuard] */,
+        path: 'employee',
+        component: EmployeeComponent /*, canActivate: [AuthGuard] */,
       },
       {
         path: 'dashboard',
@@ -33,13 +32,10 @@ export const routes: Routes = [
         path: 'departments',
         component: DepartmentsComponent /*, canActivate: [AuthGuard] */,
       },
-       {
+      {
         path: 'designation',
         component: DesignationComponent /*, canActivate: [AuthGuard] */,
       },
-     
-  
-     
     ],
   },
   { path: '**', redirectTo: 'login' },
