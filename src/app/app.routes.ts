@@ -7,6 +7,7 @@ import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { DepartmentsComponent } from './pages/departments/departments.component';
 import { DesignationComponent } from './pages/designation/designation.component';
 import { EmployeeComponent } from './pages/employee/employee.component';
+import { TasksComponent } from './pages/tasks/tasks.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -23,6 +24,10 @@ export const routes: Routes = [
       {
         path: 'employee',
         component: EmployeeComponent /*, canActivate: [AuthGuard] */,
+      },
+      {
+        path: 'tasks',
+        component: TasksComponent /*, canActivate: [AuthGuard] */,
       },
       {
         path: 'dashboard',

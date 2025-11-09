@@ -60,12 +60,13 @@
 
 /* ---- LOGOUT STYLES ---- */
 .logout-container {
-  display:flex;
   margin-top:auto;
 }
 
 .logout-btn {
-  padding: 0.7rem 1rem;
+  display:flex;
+  gap:1rem;
+  padding: 0.7rem 2rem;
   border: none;
   background: none;
   color: #d32f2f;

@@ -4,29 +4,17 @@
   </div>
 
   <nav class="nav-links">
-    <a
-      class="nav-item"
-      routerLink="/dashboard"
-      routerLinkActive="active"
-    >
-      <i class="bi bi-suit-heart-fill icon"></i>
+    <a class="nav-item" routerLink="/dashboard" routerLinkActive="active">
+      <i class="bi bi-speedometer2 icon"></i>
       <span>Dashboard</span>
     </a>
-    <a
-      class="nav-item"
-      routerLink="/departments"
-      routerLinkActive="active"
-    >
-      <i class="bi bi-suit-heart-fill icon"></i>
+    <a class="nav-item" routerLink="/departments" routerLinkActive="active">
+      <i class="bi bi-diagram-3 icon"></i>
       <span>Departments</span>
     </a>
-      <a
-      class="nav-item"
-      routerLink="/designation"
-      routerLinkActive="active"
-    >
-      <i class="bi bi-suit-heart-fill icon"></i>
-      <span>Designation</span>
+    <a class="nav-item" routerLink="/designation" routerLinkActive="active">
+      <i class="bi bi-person-badge icon"></i>
+      <span>Designations</span>
     </a>
 
     <a
@@ -35,11 +23,18 @@
       routerLinkActive="active"
       [routerLinkActiveOptions]="{ exact: true }"
     >
-      <i class="bi bi-house-fill icon"></i>
+      <i class="bi bi-people-fill icon"></i>
       <span>Employees</span>
     </a>
-
-        
+    <a
+      class="nav-item"
+      routerLink="/tasks"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }"
+    >
+      <i class="bi bi-check2-square icon"></i>
+      <span>Tasks</span>
+    </a>
   </nav>
 
   <!-- LOGOUT BUTTON -->
