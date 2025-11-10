@@ -1,5 +1,8 @@
 <div class="login-container">
   <div class="auth-container">
+    <div class="error-message" *ngIf="errorMessage">
+      {{ errorMessage }}
+    </div>
     <span class="text-center mb-2">
       {{ isLoginMode ? "Login" : "User Registration" }}
     </span>
@@ -20,14 +23,13 @@
 
         <div class="field">
           <label for="password" class="form-label">Password:</label>
-          <input
+          <p-password
             id="password"
-            type="password"
-            class="form-control"
             formControlName="password"
-            name="password"
-            required
-          />
+            [toggleMask]="true"
+            [feedback]="false"
+            class="w-full form-control"
+          ></p-password>
         </div>
 
         <button type="submit" class="btn">Login</button>
@@ -75,18 +77,16 @@
 
         <div class="field">
           <label for="password">Password:</label>
-          <input
+          <p-password
             id="password"
             formControlName="password"
-            type="password"
-            class="form-control"
-            required
-          />
+            [toggleMask]="true"
+            [feedback]="false"
+            class="w-full form-control"
+          ></p-password>
         </div>
 
-        <button type="submit" class="btn" [disabled]="signUpForm.invalid">
-          Register
-        </button>
+        <button type="submit" class="btn">Register</button>
 
         <p class="text-center paragraph">
           Already have an account?
@@ -94,11 +94,5 @@
         </p>
       </div>
     </form>
-    <div *ngIf="registrationSuccess" class="alert-success">
-      Registration successful!
-    </div>
-    <div *ngIf="errorMessage" class="alert-danger">
-      {{ errorMessage }}
-    </div>
   </div>
 </div>

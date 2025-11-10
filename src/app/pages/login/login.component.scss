@@ -6,6 +6,13 @@
   justify-content: center;
   background: linear-gradient(135deg, #6a11cb, #2575fc);
 }
+.error-message {
+  color: red;
+  font-size: 0.7rem;
+  display: inline-block;
+  margin-left: 0.5rem;
+}
+
 
 /* Card Layout */
 .auth-container {
@@ -121,4 +128,25 @@ label {
     width: 90%;
     padding: 1.5rem;
   }
+}
+
+:host ::ng-deep .p-password {
+  width: 100%;
+  border:none;
+  outline:none;
+}
+
+:host ::ng-deep .p-password input {
+  border: 1.5px solid #ccc !important;
+  border-radius: 8px !important;
+  outline: none !important;
+  font-size: 0.95rem !important;
+  padding: 0.1rem 0.25rem !important;
+  height: auto !important;
+  box-sizing: border-box !important;
+}
+
+:host ::ng-deep .p-password input:focus {
+  border-color: #2575fc !important;
+  box-shadow: none !important;
 }
