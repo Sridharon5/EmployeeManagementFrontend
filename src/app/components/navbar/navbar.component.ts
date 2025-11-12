@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit} from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -14,12 +14,16 @@ import { RouterModule } from '@angular/router';
 export class NavbarComponent implements OnInit {
   isAuthenticated = false;
   isAdmin = false;
-
+  role:string='';
+  name:string='';
   constructor(private authService: AuthService, private router: Router) {}
 
   ngOnInit(): void {
     this.isAuthenticated = this.authService.getIsAuthenticated();
     this.isAdmin = this.authService.getRole() === 'ADMIN';
+    this.role=this.authService.getRole();
+    this.name=this.authService.getFirstName();
+    
   }
 
   logout() {

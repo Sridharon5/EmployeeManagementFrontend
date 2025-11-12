@@ -64,7 +64,7 @@ export class LoginComponent {
     });
   }
 
-  onLogin() {
+onLogin() {
     const payload = {
       username: this.loginForm.value.username,
       password: this.loginForm.value.password,
@@ -89,7 +89,9 @@ export class LoginComponent {
         this.authService.setIsAuthenticated(true);
         this.authService.setJwtToken(res.token);
         this.authService.setRole(res.role);
+        this.authService.setFirstName(res.name);
         this.router.navigate(['dashboard']);
+        console.log(res);
         this.loader.stop();
         this.errorMessage = 'Login was successful';
       },

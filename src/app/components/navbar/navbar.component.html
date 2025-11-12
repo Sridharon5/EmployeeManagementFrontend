@@ -1,7 +1,10 @@
 <div class="sidebar">
-  <div class="logo">
-    <img id="logo" src="/image.png" alt="Logo" />
+<div class="user-circle">
+  <div class="circle">
+    <div class="name">{{name | lowercase | titlecase}}</div>
+    <div class="role">{{ role | lowercase | titlecase}}</div>
   </div>
+</div>
 
   <nav class="nav-links">
     <a class="nav-item" routerLink="/dashboard" routerLinkActive="active">
