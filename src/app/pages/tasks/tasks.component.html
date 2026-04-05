@@ -1,174 +1,351 @@
-<div class="task-container">
-  <div class="add-task-container">
-    <p-button
-      label="ADD TASK"
-      (click)="openDialog(selectedTask, 'add')"
-    ></p-button>
+<div class="app-page">
+  <div class="app-page__header">
+    <div>
+      <h1 class="app-page__heading">{{ tasksPageTitle }}</h1>
+      <p class="app-page__lead">
+        {{ tasksPageLead }}
+      </p>
+    </div>
+    <div class="app-page__toolbar" *ngIf="auth.isAdmin()">
+      <p-button
+        label="Add task"
+        icon="pi pi-plus"
+        (click)="openDialog({}, 'add')"
+      ></p-button>
+    </div>
   </div>
+
   <p-table
     [value]="tasks"
+    [lazy]="true"
+    (onLazyLoad)="onLazyLoad($event)"
     [paginator]="true"
-    [rows]="5"
-    responsiveLayout="scroll"
+    [rows]="pageSize"
+    [totalRecords]="totalRecords"
+    [loading]="loading"
   >
     <ng-template pTemplate="header">
       <tr>
-        <th style="width: 5%">S.No</th>
-        <th style="width: 25%">Task</th>
-        <th style="width: 20%">Due Date</th>
-        <th style="width: 15%">Assigned To</th>
-        <th style="width: 10%">status</th>
-        <th style="width: 25%">Action</th>
+        <th class="app-col-sno">S.No</th>
+        <th
+          class="app-col-task-title"
+          [class.app-col-task-title--user]="!auth.isAdmin()"
+        >
+          Task
+        </th>
+        <th
+          class="app-col-task-due"
+          [class.app-col-task-due--user]="!auth.isAdmin()"
+        >
+          Due
+        </th>
+        <th *ngIf="auth.isAdmin()" class="app-col-task-assigned">
+          Assigned to
+        </th>
+        <th
+          class="app-col-task-status"
+          [class.app-col-task-status--user]="!auth.isAdmin()"
+        >
+          Status
+        </th>
+        <th class="app-col-actions app-col-actions--wide">Actions</th>
       </tr>
     </ng-template>
 
-    <ng-template pTemplate="body" let-selectedTask>
+    <ng-template pTemplate="body" let-row let-rowIndex="rowIndex">
       <tr>
-        <td>{{ selectedTask.id }}</td>
-        <td>{{ selectedTask.title }}</td>
-        <td>{{ selectedTask.dueDate | date : "medium" }}</td>
-        <td>{{ selectedTask.assignedTo.user.firstName+ ' '+ selectedTask.assignedTo.user.lastName}}</td>
-        <td>{{ selectedTask.status }}</td>
-
-        <td>
-          <div class="actions-container">
-            <p-button icon="pi pi-eye" (click)="openDialog(selectedTask, 'view')"
-              >VIEW</p-button
-            >
-            <p-button icon="pi pi-pencil" (click)="openDialog(selectedTask, 'edit')"
-              >EDIT</p-button
-            >
-            <p-button icon="pi pi-trash" (click)="openDialog(selectedTask, 'delete')"
-              >DELETE</p-button
-            >
+        <td class="app-col-sno">{{ rowDisplayIndex(rowIndex) }}</td>
+        <td
+          class="app-cell-description app-col-task-title"
+          [class.app-col-task-title--user]="!auth.isAdmin()"
+          [attr.title]="row.title"
+        >
+          {{ row.title }}
+        </td>
+        <td
+          class="app-cell-date app-col-task-due"
+          [class.app-col-task-due--user]="!auth.isAdmin()"
+        >
+          <ng-container *ngIf="row.dueDate; else noDue">{{
+            row.dueDate | date : "dd-MMM-yyyy"
+          }}</ng-container>
+          <ng-template #noDue>—</ng-template>
+        </td>
+        <td *ngIf="auth.isAdmin()" class="app-cell-description app-col-task-assigned">
+          {{ assigneeLabel(row) }}
+        </td>
+        <td
+          class="app-col-task-status"
+          [class.app-col-task-status--user]="!auth.isAdmin()"
+        >
+          {{ formatStatus(row.status) }}
+        </td>
+        <td class="app-col-actions app-col-actions--wide">
+          <div class="app-table-actions">
+            <p-button
+              type="button"
+              label="View"
+              icon="pi pi-eye"
+              size="small"
+              styleClass="app-table-action--view"
+              (click)="openDialog(row, 'view')"
+            ></p-button>
+            <p-button
+              *ngIf="canUserStart(row)"
+              type="button"
+              label="Start work"
+              icon="pi pi-play"
+              size="small"
+              styleClass="app-table-action--view"
+              (click)="startWork(row)"
+            ></p-button>
+            <p-button
+              *ngIf="canUserClose(row)"
+              type="button"
+              label="Close ticket"
+              icon="pi pi-check"
+              size="small"
+              styleClass="app-table-action--edit"
+              (click)="openDialog(row, 'close')"
+            ></p-button>
+            <p-button
+              *ngIf="auth.isAdmin()"
+              type="button"
+              label="Edit"
+              icon="pi pi-pencil"
+              size="small"
+              styleClass="app-table-action--edit"
+              (click)="openDialog(row, 'edit')"
+            ></p-button>
+            <p-button
+              *ngIf="auth.isAdmin()"
+              type="button"
+              label="Delete"
+              icon="pi pi-trash"
+              size="small"
+              styleClass="app-table-action--delete"
+              (click)="openDialog(row, 'delete')"
+            ></p-button>
           </div>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td [attr.colspan]="auth.isAdmin() ? 6 : 5" class="app-table-empty">
+          No tasks found.
         </td>
       </tr>
     </ng-template>
   </p-table>
 </div>
-<!-- Dialog boxes-->
+
 <p-dialog
   [(visible)]="dialogVisible"
   [modal]="true"
-  [style]="{ width: '400px' }"
-  [header]="dialogMode | titlecase"
+  [style]="{ width: 'min(92vw, 520px)' }"
+  [header]="
+    dialogMode === 'close'
+      ? 'Close ticket'
+      : (dialogMode | titlecase) || 'Dialog'
+  "
 >
-  <!-- 🔹 VIEW MODE -->
-  <ng-container *ngIf="dialogMode === 'view'">
-    <p><b>ID:</b> {{ selectedTask.id }}</p>
-    <p><b>Title:</b> {{ selectedTask.title }}</p>
-    <p><b>Due Date:</b> {{ selectedTask.dueDate | date : "medium" }}</p>
-    <p><b>Assigned To:</b> {{ selectedTask.assignedTo.user.firstName+' '+selectedTask.assignedTo.user.lastName }}</p>
-    <p><b>Status:</b> {{ selectedTask.status }}</p>
-  </ng-container>
-
-  <!-- 🔹 ADD MODE -->
-  <ng-container *ngIf="dialogMode === 'add'">
-    <div class="form-group">
-      <label>Title:</label>
-      <input
-        type="text"
-        [(ngModel)]="selectedTask.title"
-        class="p-inputtext p-component"
-      />
-    </div>
-    <div class="form-group">
-      <label>Due Date:</label>
-      <textarea
-        [(ngModel)]="selectedTask.dueDate"
-        class="p-inputtext p-component"
-      ></textarea>
-    </div>
-    <div class="form-group">
-      <label>Assigned To:</label>
-      <textarea
-        [(ngModel)]="selectedTask.assignedTo"
-        class="p-inputtext p-component"
-      ></textarea>
-    </div>
-    <div class="form-group">
-      <label>Status:</label>
-      <textarea
-        [(ngModel)]="selectedTask.status"
-        class="p-inputtext p-component"
-      ></textarea>
-    </div>
-  </ng-container>
-
-  <!-- 🔹 EDIT MODE -->
-  <ng-container *ngIf="dialogMode === 'edit'">
-    <div class="form-group">
-      <label>Title:</label>
-      <input
-        type="text"
-        [(ngModel)]="selectedTask.title"
-        class="p-inputtext p-component"
-      />
-    </div>
-    <div class="form-group">
-      <label>Due Date:</label>
-      <textarea
-        [(ngModel)]="selectedTask.dueDate"
-        class="p-inputtext p-component"
-      ></textarea>
-    </div>
-    <div class="form-group">
-      <label>Assigned To:</label>
-      <textarea
-        [(ngModel)]="selectedTask.assignedTo"
-        class="p-inputtext p-component"
-      ></textarea>
-    </div>
-    <div class="form-group">
-      <label>Status:</label>
-      <textarea
-        [(ngModel)]="selectedTask.status"
-        class="p-inputtext p-component"
-      ></textarea>
-    </div>
-  </ng-container>
-
-  <!-- 🔹 DELETE MODE -->
-  <ng-container *ngIf="dialogMode === 'delete'">
+  <ng-container *ngIf="dialogMode === 'view' && selectedTask">
+    <p><b>ID:</b> {{ selectedTask['id'] }}</p>
+    <p><b>Title:</b> {{ selectedTask['title'] }}</p>
+    <p *ngIf="selectedTask['description']">
+      <b>Description:</b> {{ selectedTask['description'] }}
+    </p>
     <p>
-      Are you sure you want to delete
-      <b>{{ selectedTask.name }}</b
-      >?
+      <b>Due:</b>
+      <ng-container *ngIf="selectedDueDateFormatted() as dueText; else noDueV">
+        <span class="app-date-display">{{ dueText }}</span>
+      </ng-container>
+      <ng-template #noDueV>—</ng-template>
+    </p>
+    <p *ngIf="auth.isAdmin()">
+      <b>Assigned to:</b> {{ assigneeLabelFromSelected() }}
+    </p>
+    <p><b>Status:</b> {{ formatStatus(selectedTask['status']) }}</p>
+    <p *ngIf="selectedTask['completionNote']">
+      <b>Completion note:</b> {{ selectedTask['completionNote'] }}
+    </p>
+    <p *ngIf="selectedClosedAtFormatted() as closedText">
+      <b>Closed:</b>
+      <span class="app-date-display">{{ closedText }}</span>
     </p>
   </ng-container>
 
-  <!-- 🔹 FOOTER BUTTONS -->
+  <ng-container *ngIf="dialogMode === 'close' && selectedTask">
+    <p>
+      Close ticket <b>{{ selectedTask['title'] }}</b>? Add an optional note for the record.
+    </p>
+    <div class="app-form-group">
+      <label for="task-close-note">Completion note (optional)</label>
+      <textarea
+        id="task-close-note"
+        rows="3"
+        [(ngModel)]="closeTicketNote"
+        placeholder="What was delivered, link, etc."
+      ></textarea>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="dialogMode === 'add' && selectedTask">
+    <div class="app-form-group">
+      <label for="task-add-title">Title</label>
+      <input id="task-add-title" type="text" [(ngModel)]="selectedTask['title']" />
+    </div>
+    <div class="app-form-group">
+      <label for="task-add-desc">Description</label>
+      <textarea
+        id="task-add-desc"
+        rows="3"
+        [(ngModel)]="selectedTask['description']"
+      ></textarea>
+    </div>
+    <div class="app-form-group">
+      <label for="task-add-due">Due date</label>
+      <input id="task-add-due" type="date" [(ngModel)]="selectedTask['dueDate']" />
+    </div>
+    <div class="app-form-group">
+      <label for="task-add-assign">Assign to</label>
+      <p-select
+        inputId="task-add-assign"
+        [(ngModel)]="selectedTask['assignedToEmployeeId']"
+        [options]="assigneeOptions"
+        optionLabel="label"
+        optionValue="id"
+        placeholder="— Select employee —"
+        [filter]="true"
+        filterPlaceholder="Search"
+        [showClear]="true"
+        [appendTo]="'body'"
+      ></p-select>
+    </div>
+    <div class="app-form-group">
+      <label for="task-add-status">Status</label>
+      <p-select
+        inputId="task-add-status"
+        [(ngModel)]="selectedTask['status']"
+        [options]="statusSelectOptions"
+        optionLabel="label"
+        optionValue="value"
+        [appendTo]="'body'"
+      ></p-select>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="dialogMode === 'edit' && selectedTask">
+    <div class="app-form-group">
+      <label for="task-edit-title">Title</label>
+      <input id="task-edit-title" type="text" [(ngModel)]="selectedTask['title']" />
+    </div>
+    <div class="app-form-group">
+      <label for="task-edit-desc">Description</label>
+      <textarea
+        id="task-edit-desc"
+        rows="3"
+        [(ngModel)]="selectedTask['description']"
+      ></textarea>
+    </div>
+    <div class="app-form-group">
+      <label for="task-edit-due">Due date</label>
+      <input id="task-edit-due" type="date" [(ngModel)]="selectedTask['dueDate']" />
+    </div>
+    <div class="app-form-group">
+      <label for="task-edit-assign">Assign to</label>
+      <p-select
+        inputId="task-edit-assign"
+        [(ngModel)]="selectedTask['assignedToEmployeeId']"
+        [options]="assigneeOptions"
+        optionLabel="label"
+        optionValue="id"
+        placeholder="— Select employee —"
+        [filter]="true"
+        filterPlaceholder="Search"
+        [showClear]="true"
+        [appendTo]="'body'"
+      ></p-select>
+    </div>
+    <div class="app-form-group">
+      <label for="task-edit-status">Status</label>
+      <p-select
+        inputId="task-edit-status"
+        [(ngModel)]="selectedTask['status']"
+        [options]="statusSelectOptions"
+        optionLabel="label"
+        optionValue="value"
+        [appendTo]="'body'"
+      ></p-select>
+    </div>
+    <div class="app-form-group">
+      <label for="task-edit-note">Completion note</label>
+      <textarea
+        id="task-edit-note"
+        rows="2"
+        [(ngModel)]="selectedTask['completionNote']"
+      ></textarea>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="dialogMode === 'delete' && selectedTask">
+    <p>
+      Delete <b>{{ selectedTask['title'] }}</b>? This cannot be undone.
+    </p>
+  </ng-container>
+
   <ng-template pTemplate="footer">
-    <div class="dialog-footer">
+    <div
+      class="app-dialog-footer"
+      *ngIf="auth.isAdmin() && (dialogMode === 'edit' || dialogMode === 'add')"
+    >
       <p-button
         *ngIf="dialogMode === 'edit'"
-        label="Save"
+        label="Save changes"
         icon="pi pi-check"
         (click)="saveChanges()"
       ></p-button>
-
       <p-button
         *ngIf="dialogMode === 'add'"
-        label="Add"
+        label="Add task"
         icon="pi pi-check"
-        (click)="addDesignation()"
+        (click)="addTask()"
       ></p-button>
-
-      <div *ngIf="dialogMode === 'delete'" class="delete-actions">
-        <p-button
-          label="Cancel"
-          icon="pi pi-times"
-          class="p-button-text"
-          (click)="closeDialog()"
-        ></p-button>
-        <p-button
-          label="Delete"
-          icon="pi pi-trash"
-          class="p-button-danger"
-          (click)="confirmDelete()"
-        ></p-button>
-      </div>
+    </div>
+    <div
+      class="app-dialog-footer app-dialog-footer--split"
+      *ngIf="auth.isAdmin() && dialogMode === 'delete'"
+    >
+      <p-button
+        label="Cancel"
+        icon="pi pi-times"
+        [outlined]="true"
+        (click)="closeDialog()"
+      ></p-button>
+      <p-button
+        label="Delete"
+        icon="pi pi-trash"
+        severity="danger"
+        (click)="confirmDelete()"
+      ></p-button>
+    </div>
+    <div
+      class="app-dialog-footer app-dialog-footer--split"
+      *ngIf="dialogMode === 'close'"
+    >
+      <p-button
+        label="Cancel"
+        icon="pi pi-times"
+        [outlined]="true"
+        (click)="closeDialog()"
+      ></p-button>
+      <p-button
+        label="Close ticket"
+        icon="pi pi-check"
+        (click)="submitCloseTicket()"
+      ></p-button>
     </div>
   </ng-template>
 </p-dialog>

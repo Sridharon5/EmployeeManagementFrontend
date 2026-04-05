@@ -2,52 +2,78 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ApiClient } from '../../services/api-client.service';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
+import { MessageService } from 'primeng/api';
+import { resolveApiMessage } from '../../utils/api-message.util';
+import { AuthService } from '../../services/auth.service';
+import { UserDashboardDto } from '../../models/task-dashboard.models';
+
 @Component({
   selector: 'app-dashboard',
   imports: [CommonModule],
   standalone: true,
   templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.scss'],
 })
-export class DashboardComponent implements OnInit{
-  constructor(private api:ApiClient,private loader:NgxUiLoaderService){
+export class DashboardComponent implements OnInit {
+  stats: any[] = [];
+  userDash: UserDashboardDto | null = null;
 
-  }
-  stats:any[]=[];
+  constructor(
+    private api: ApiClient,
+    private loader: NgxUiLoaderService,
+    private messageService: MessageService,
+    readonly auth: AuthService
+  ) {}
+
   ngOnInit(): void {
-   this.getKeyPointIndicators();
+    if (this.auth.isAdmin()) {
+      this.getKeyPointIndicators();
+    } else {
+      this.loadUserDashboard();
+    }
   }
-  getKeyPointIndicators(){
+
+  getKeyPointIndicators(): void {
     this.loader.start();
-    this.api
-      .get('auth/getKeyPointIndicators')
-      .subscribe({
-        next: (res:any) => {
-          this.stats=res;
-          this.loader.stop();
-        },
-        error: (err) => {
-          console.error('Delete failed', err), 
-          this.loader.stop();
-        },
-      });
+    this.api.get('auth/getKeyPointIndicators').subscribe({
+      next: (res: unknown) => {
+        const r = res as Record<string, unknown>;
+        this.stats = (Array.isArray(r) ? r : r['data'] ?? r) as any[];
+        this.loader.stop();
+      },
+      error: (err: unknown) => {
+        this.loader.stop();
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Dashboard',
+          detail: resolveApiMessage(err, 'Could not load dashboard metrics.'),
+        });
+      },
+    });
   }
-  // stats = [
-  //   {
-  //     count: 2,
-  //     label: 'Total Departments',
-  //     icon: 'bi-clipboard',
-  //     color: 'blue',
-  //   },
-  //   {
-  //     count: 2,
-  //     label: 'Total Designations',
-  //     icon: 'bi-diagram-3',
-  //     color: 'green',
-  //   },
-  //   { count: 2, label: 'Total Users', icon: 'bi-person', color: 'yellow' },
-  //   { count: 2, label: 'Total Employees', icon: 'bi-people', color: 'purple' },
-  //   { count: 2, label: 'Total Evaluators', icon: 'bi-eye', color: 'violet' },
-  //   { count: 3, label: 'Total Tasks', icon: 'bi-alarm', color: 'cyan' },
-  // ];
+
+  loadUserDashboard(): void {
+    this.loader.start();
+    this.api.get('dashboard/me').subscribe({
+      next: (res: unknown) => {
+        const r = res as Record<string, unknown>;
+        const body = (r['data'] ?? r) as UserDashboardDto;
+        this.userDash = {
+          openTaskCount: Number(body?.openTaskCount ?? 0),
+          dueWithinSevenDaysCount: Number(body?.dueWithinSevenDaysCount ?? 0),
+          recentlyClosedTasks: Array.isArray(body?.recentlyClosedTasks)
+            ? body.recentlyClosedTasks
+            : [],
+        };
+        this.loader.stop();
+      },
+      error: (err: unknown) => {
+        this.loader.stop();
+        this.messageService.add({
+          severity: 'error',
+          summary: 'My dashboard',
+          detail: resolveApiMessage(err, 'Could not load your dashboard.'),
+        });
+      },
+    });
+  }
 }

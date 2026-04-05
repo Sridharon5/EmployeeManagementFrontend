@@ -1,50 +1,45 @@
-<div class="sidebar">
-<div class="user-circle">
-  <div class="circle">
-    <div class="name">{{name | lowercase | titlecase}}</div>
-    <div class="role">{{ role | lowercase | titlecase}}</div>
+<div class="app-sidebar__brand">
+  <span class="app-sidebar__logo">EM</span>
+  <div>
+    <span class="app-sidebar__title">Employee MS</span>
+    <span class="app-sidebar__subtitle">Operations</span>
   </div>
 </div>
 
-  <nav class="nav-links">
-    <a class="nav-item" routerLink="/dashboard" routerLinkActive="active">
-      <i class="bi bi-speedometer2 icon"></i>
-      <span>Dashboard</span>
-    </a>
-    <a class="nav-item" routerLink="/departments" routerLinkActive="active">
-      <i class="bi bi-diagram-3 icon"></i>
-      <span>Departments</span>
-    </a>
-    <a class="nav-item" routerLink="/designation" routerLinkActive="active">
-      <i class="bi bi-person-badge icon"></i>
-      <span>Designations</span>
-    </a>
-
-    <a
-      class="nav-item"
-      routerLink="/employee"
-      routerLinkActive="active"
-      [routerLinkActiveOptions]="{ exact: true }"
-    >
-      <i class="bi bi-people-fill icon"></i>
-      <span>Employees</span>
-    </a>
-    <a
-      class="nav-item"
-      routerLink="/tasks"
-      routerLinkActive="active"
-      [routerLinkActiveOptions]="{ exact: true }"
-    >
-      <i class="bi bi-check2-square icon"></i>
-      <span>Tasks</span>
-    </a>
-  </nav>
-
-  <!-- LOGOUT BUTTON -->
-  <div class="logout-container">
-    <button class="logout-btn" (click)="logout()">
-      <i class="bi bi-box-arrow-right icon"></i>
-      <span>Logout</span>
-    </button>
-  </div>
-</div>
+<nav class="app-sidebar__nav" aria-label="Main navigation">
+  <a
+    class="app-sidebar__link"
+    routerLink="/dashboard"
+    routerLinkActive="active"
+    [routerLinkActiveOptions]="{ exact: true }"
+  >
+    <i class="bi bi-speedometer2 app-sidebar__icon" aria-hidden="true"></i>
+    <span>Dashboard</span>
+  </a>
+  <a class="app-sidebar__link" routerLink="/departments" routerLinkActive="active">
+    <i class="bi bi-diagram-3 app-sidebar__icon" aria-hidden="true"></i>
+    <span>Departments</span>
+  </a>
+  <a class="app-sidebar__link" routerLink="/designation" routerLinkActive="active">
+    <i class="bi bi-person-badge app-sidebar__icon" aria-hidden="true"></i>
+    <span>Designations</span>
+  </a>
+  <a
+    class="app-sidebar__link"
+    routerLink="/employee"
+    routerLinkActive="active"
+    [routerLinkActiveOptions]="{ exact: true }"
+  >
+    <i class="bi bi-people-fill app-sidebar__icon" aria-hidden="true"></i>
+    <span>Employees</span>
+  </a>
+  <a
+    class="app-sidebar__link"
+    routerLink="/tasks"
+    routerLinkActive="active"
+    [routerLinkActiveOptions]="{ exact: true }"
+  >
+    <i class="bi bi-check2-square app-sidebar__icon" aria-hidden="true"></i>
+    <span>{{ auth.isAdmin() ? 'Tasks' : 'My tasks' }}</span>
+  </a>
+</nav>

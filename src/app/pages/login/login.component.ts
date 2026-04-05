@@ -1,10 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ApiClient } from '../../services/api-client.service';
 import { PasswordModule } from 'primeng/password';
+import { MessageService } from 'primeng/api';
 import {
   ReactiveFormsModule,
   FormBuilder,
@@ -12,18 +13,16 @@ import {
   FormsModule,
   Validators,
 } from '@angular/forms';
+import { resolveApiMessage } from '../../utils/api-message.util';
 
 @Component({
   selector: 'app-login',
-  imports: [FormsModule, ReactiveFormsModule, CommonModule,PasswordModule],
+  imports: [FormsModule, ReactiveFormsModule, CommonModule, PasswordModule],
   standalone: true,
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.scss'],
 })
-export class LoginComponent {
-  isLoginMode: boolean = false;
-  registrationSuccess: boolean = false;
-  errorMessage: string = '';
+export class LoginComponent implements OnInit {
+  isLoginMode = false;
   signUpForm!: FormGroup;
   loginForm!: FormGroup;
 
@@ -32,7 +31,8 @@ export class LoginComponent {
     private authService: AuthService,
     private router: Router,
     private api: ApiClient,
-    private loader: NgxUiLoaderService
+    private loader: NgxUiLoaderService,
+    private messageService: MessageService
   ) {
     this.signUpForm = this.fb.group({
       username: [
@@ -64,7 +64,21 @@ export class LoginComponent {
     });
   }
 
-onLogin() {
+  ngOnInit(): void {
+    if (this.authService.hasPersistedValidSession()) {
+      void this.router.navigate(['/dashboard']);
+    }
+  }
+
+  private toastError(summary: string, detail: string) {
+    this.messageService.add({ severity: 'error', summary, detail, life: 6000 });
+  }
+
+  private toastSuccess(summary: string, detail: string) {
+    this.messageService.add({ severity: 'success', summary, detail, life: 4000 });
+  }
+
+  onLogin() {
     const payload = {
       username: this.loginForm.value.username,
       password: this.loginForm.value.password,
@@ -72,60 +86,56 @@ onLogin() {
     if (this.loginForm.invalid) {
       const username = this.loginForm.get('username')?.value;
       const password = this.loginForm.get('password')?.value;
-
       if (!username && !password) {
-        this.errorMessage = 'Please enter Username and Password.';
+        this.toastError('Sign in', 'Enter your username and password.');
       } else if (!username) {
-        this.errorMessage = 'Please enter Username.';
-      } else if (!password) {
-        this.errorMessage = 'Please enter Password.';
+        this.toastError('Sign in', 'Username is required.');
+      } else {
+        this.toastError('Sign in', 'Password is required.');
       }
-
       return;
     }
     this.loader.start();
     this.api.post('auth/login', payload).subscribe({
       next: (res: any) => {
-        this.authService.setIsAuthenticated(true);
-        this.authService.setJwtToken(res.token);
-        this.authService.setRole(res.role);
-        this.authService.setFirstName(res.name);
+        this.authService.applyAuthResponse(res);
+        this.loader.stop();
+        this.toastSuccess('Welcome back', `Signed in as ${res.name ?? res.username ?? payload.username}.`);
         this.router.navigate(['dashboard']);
-        console.log(res);
-        this.loader.stop();
-        this.errorMessage = 'Login was successful';
       },
-      error: (err: any) => {
+      error: (err: unknown) => {
         this.loader.stop();
-        this.errorMessage = 'Username or Password is incorrect';
+        const detail = resolveApiMessage(err, 'Invalid username or password.');
+        this.toastError('Sign in failed', detail);
       },
     });
   }
+
   onSignUp() {
-     const username = this.signUpForm.get('username')?.value;
+    const username = this.signUpForm.get('username')?.value;
     const password = this.signUpForm.get('password')?.value;
     const firstName = this.signUpForm.get('firstName')?.value;
     const lastName = this.signUpForm.get('lastName')?.value;
 
     if (this.signUpForm.invalid) {
       if (!username && !password && !firstName && !lastName) {
-        this.errorMessage = 'Please enter all required fields.';
+        this.toastError('Registration', 'Please fill in all required fields.');
         return;
       }
       if (!username) {
-        this.errorMessage = 'Please enter Username.';
+        this.toastError('Registration', 'Username is required.');
         return;
       }
       if (!firstName) {
-        this.errorMessage = 'Please enter First Name.';
+        this.toastError('Registration', 'First name is required.');
         return;
       }
       if (!lastName) {
-        this.errorMessage = 'Please enter Last Name.';
+        this.toastError('Registration', 'Last name is required.');
         return;
       }
       if (!password) {
-        this.errorMessage = 'Please enter Password.';
+        this.toastError('Registration', 'Password is required.');
         return;
       }
 
@@ -135,33 +145,40 @@ onLogin() {
       const passwordControl = this.signUpForm.get('password');
 
       if (usernameControl?.hasError('minlength')) {
-        this.errorMessage = 'Username must be at least 4 characters long.';
+        this.toastError('Registration', 'Username must be at least 4 characters.');
         return;
       }
       if (usernameControl?.hasError('pattern')) {
-        this.errorMessage = 'Username can contain only letters, numbers, or underscores.';
+        this.toastError(
+          'Registration',
+          'Username may only contain letters, numbers, and underscores.'
+        );
         return;
       }
       if (firstNameControl?.hasError('pattern')) {
-        this.errorMessage = 'First Name must contain only alphabets.';
+        this.toastError('Registration', 'First name must contain only letters.');
         return;
       }
       if (lastNameControl?.hasError('pattern')) {
-        this.errorMessage = 'Last Name must contain only alphabets.';
+        this.toastError('Registration', 'Last name must contain only letters.');
         return;
       }
       if (passwordControl?.hasError('minlength')) {
-        this.errorMessage = 'Password must be at least 8 characters long.';
+        this.toastError('Registration', 'Password must be at least 8 characters.');
         return;
       }
       if (passwordControl?.hasError('pattern')) {
-        this.errorMessage = 'Password must contain at least one letter, one number, and one special character.';
+        this.toastError(
+          'Registration',
+          'Password needs at least one letter, one number, and one special character (@$!%*?&).'
+        );
         return;
       }
 
-      this.errorMessage = 'Please fill all fields correctly.';
+      this.toastError('Registration', 'Please correct the highlighted fields.');
       return;
     }
+
     const payload = {
       username: this.signUpForm.value.username,
       password: this.signUpForm.value.password,
@@ -172,17 +189,25 @@ onLogin() {
     this.loader.start();
     this.api.post('auth/register', payload).subscribe({
       next: (res: any) => {
-        console.log(res);
         this.loader.stop();
-        this.errorMessage=res.message;
+        const msg =
+          typeof res?.message === 'string' && res.message.trim()
+            ? res.message.trim()
+            : 'Account created. You can sign in now.';
+        this.toastSuccess('Registration complete', msg);
+        this.isLoginMode = true;
+        this.signUpForm.reset();
       },
-      error: (err: any) => {
+      error: (err: unknown) => {
         this.loader.stop();
-        this.errorMessage=err;
+        const detail = resolveApiMessage(err, 'Registration could not be completed.');
+        this.toastError('Registration failed', detail);
       },
     });
   }
+
   toggleMode() {
     this.isLoginMode = !this.isLoginMode;
+    this.messageService.clear();
   }
 }

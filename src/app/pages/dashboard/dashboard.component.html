@@ -1,19 +1,66 @@
-<div class="dashboard-container">
-  <div class="stats-container">
-    <div 
-      class="stat-card" 
-      *ngFor="let stat of stats" 
-      [ngClass]="stat.color"
-    >
-      <div class="stat-content">
-        <div class="left">
-          <h2>{{ stat.count }}</h2>
-          <p>{{ stat.label }}</p>
+<div class="dashboard-page" *ngIf="auth.isAdmin()">
+  <h1 class="dashboard-page__title">Dashboard</h1>
+  <p class="dashboard-page__lead">
+    Key metrics across your organization at a glance.
+  </p>
+
+  <div class="stats-grid">
+    <div class="stat-card" *ngFor="let stat of stats" [ngClass]="stat.color">
+      <div class="stat-card__inner">
+        <div>
+          <h2 class="stat-card__value">{{ stat.count }}</h2>
+          <p class="stat-card__label">{{ stat.label }}</p>
         </div>
-        <div class="right">
-          <i class="bi" [ngClass]="stat.icon"></i>
-        </div>
+        <i class="bi stat-card__icon" [ngClass]="stat.icon"></i>
       </div>
     </div>
   </div>
+</div>
+
+<div class="dashboard-page dashboard-page--user" *ngIf="!auth.isAdmin()">
+  <h1 class="dashboard-page__title">My dashboard</h1>
+  <p class="dashboard-page__lead">
+    Your open work, upcoming due dates, and recently completed tasks.
+  </p>
+
+  <div class="stats-grid dashboard-page__user-stats" *ngIf="userDash">
+    <div class="stat-card blue">
+      <div class="stat-card__inner">
+        <div>
+          <h2 class="stat-card__value">{{ userDash.openTaskCount }}</h2>
+          <p class="stat-card__label">Open tasks</p>
+        </div>
+        <i class="bi bi-inbox stat-card__icon" aria-hidden="true"></i>
+      </div>
+    </div>
+    <div class="stat-card yellow">
+      <div class="stat-card__inner">
+        <div>
+          <h2 class="stat-card__value">{{ userDash.dueWithinSevenDaysCount }}</h2>
+          <p class="stat-card__label">Due within 7 days</p>
+        </div>
+        <i class="bi bi-calendar-week stat-card__icon" aria-hidden="true"></i>
+      </div>
+    </div>
+  </div>
+
+  <section class="dashboard-recent" *ngIf="userDash?.recentlyClosedTasks?.length">
+    <h2 class="dashboard-recent__heading">Recently closed</h2>
+    <ul class="dashboard-recent__list">
+      <li *ngFor="let t of userDash!.recentlyClosedTasks" class="dashboard-recent__item">
+        <span class="dashboard-recent__title">{{ t.title }}</span>
+        <span class="dashboard-recent__meta">
+          {{ t.status }}
+          <ng-container *ngIf="t.closedAt">
+            · {{ t.closedAt | date : "dd-MMM-yyyy" }}</ng-container
+          >
+        </span>
+      </li>
+    </ul>
+  </section>
+
+  <p class="dashboard-page__empty" *ngIf="userDash && !userDash.recentlyClosedTasks.length">
+    No recently closed tasks yet. Complete a task from <strong>My tasks</strong> to see it
+    here.
+  </p>
 </div>

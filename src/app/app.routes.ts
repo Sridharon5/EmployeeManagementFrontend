@@ -31,17 +31,17 @@ export const routes: Routes = [
       },
       {
         path: 'dashboard',
-        component: DashboardComponent /*, canActivate: [AuthGuard] */,
+        component: DashboardComponent,
       },
       {
         path: 'departments',
-        component: DepartmentsComponent /*, canActivate: [AuthGuard] */,
+        component: DepartmentsComponent,
       },
       {
         path: 'designation',
-        component: DesignationComponent /*, canActivate: [AuthGuard] */,
+        component: DesignationComponent,
       },
     ],
   },
-  { path: '**', redirectTo: 'login' },
+  { path: '**', redirectTo: '/login' },
 ];

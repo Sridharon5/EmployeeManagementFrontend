@@ -3,15 +3,23 @@ import { CommonModule } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
+import { MessageService } from 'primeng/api';
 import { ApiClient } from '../../services/api-client.service';
 import { FormsModule } from '@angular/forms';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
+import { resolveApiMessage } from '../../utils/api-message.util';
+import { AuthService } from '../../services/auth.service';
 @Component({
   selector: 'app-departments',
   standalone: true,
-  imports: [CommonModule, TableModule, ButtonModule, DialogModule, FormsModule],
+  imports: [
+    CommonModule,
+    TableModule,
+    ButtonModule,
+    DialogModule,
+    FormsModule,
+  ],
   templateUrl: './departments.component.html',
-  styleUrls: ['./departments.component.scss'],
 })
 export class DepartmentsComponent implements OnInit {
   departments: any[] = [];
@@ -19,7 +27,12 @@ export class DepartmentsComponent implements OnInit {
   dialogVisible: boolean = false;
   dialogMode: 'view' | 'edit' | 'delete' | 'add' | '' = '';
 
-  constructor(private api: ApiClient, private loader: NgxUiLoaderService) {}
+  constructor(
+    private api: ApiClient,
+    private loader: NgxUiLoaderService,
+    private messageService: MessageService,
+    readonly auth: AuthService
+  ) {}
 
   ngOnInit(): void {
     this.getAllDepartments();
@@ -33,8 +46,12 @@ export class DepartmentsComponent implements OnInit {
         this.loader.stop();
       },
       error: (err) => {
-        console.error('Error fetching departments', err);
         this.loader.stop();
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Departments',
+          detail: resolveApiMessage(err, 'Could not load departments.'),
+        });
       },
     });
   }
@@ -42,7 +59,7 @@ export class DepartmentsComponent implements OnInit {
   openDialog(dept: any, mode: 'view' | 'add' | 'edit' | 'delete') {
     this.selectedDepartment = { ...dept };
     if (mode === 'add') {
-       this.selectedDepartment = { name: '', description: '' };
+      this.selectedDepartment = { name: '', description: '' };
     }
     this.dialogMode = mode;
     this.dialogVisible = true;
@@ -63,10 +80,19 @@ export class DepartmentsComponent implements OnInit {
           this.getAllDepartments();
           this.closeDialog();
           this.loader.stop();
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Deleted',
+            detail: 'Department removed successfully.',
+          });
         },
         error: (err) => {
-          console.error('Delete failed', err), 
           this.loader.stop();
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Delete failed',
+            detail: resolveApiMessage(err, 'Could not delete department.'),
+          });
         },
       });
   }
@@ -82,13 +108,22 @@ export class DepartmentsComponent implements OnInit {
         )
         .subscribe({
           next: () => {
-             this.closeDialog();
+            this.closeDialog();
             this.getAllDepartments();
-           
-            
+            this.loader.stop();
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Saved',
+              detail: 'Department updated successfully.',
+            });
           },
           error: (err) => {
-            console.error('Update failed', err), this.loader.stop();
+            this.loader.stop();
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Update failed',
+              detail: resolveApiMessage(err, 'Could not update department.'),
+            });
           },
         });
     }
@@ -100,9 +135,19 @@ export class DepartmentsComponent implements OnInit {
         this.getAllDepartments();
         this.closeDialog();
         this.loader.stop();
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Added',
+          detail: 'Department created successfully.',
+        });
       },
       error: (err) => {
-        console.error('Update failed', err), this.loader.stop();
+        this.loader.stop();
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Could not add',
+          detail: resolveApiMessage(err, 'Could not create department.'),
+        });
       },
     });
   }

@@ -1,98 +1,109 @@
-<div class="login-container">
-  <div class="auth-container">
-    <div class="error-message" *ngIf="errorMessage">
-      {{ errorMessage }}
-    </div>
-    <span class="text-center mb-2">
-      {{ isLoginMode ? "Login" : "User Registration" }}
-    </span>
+<div class="auth-layout">
+  <div class="auth-card">
+    <h2 class="auth-card__title">
+      {{ isLoginMode ? "Sign in" : "Create account" }}
+    </h2>
 
-    <form *ngIf="isLoginMode" (ngSubmit)="onLogin()" [formGroup]="loginForm">
-      <div class="login-form">
-        <div class="field">
-          <label for="username" class="form-label">Username:</label>
-          <input
-            id="username"
-            type="text"
-            class="form-control"
-            formControlName="username"
-            name="username"
-            required
-          />
-        </div>
-
-        <div class="field">
-          <label for="password" class="form-label">Password:</label>
-          <p-password
-            id="password"
-            formControlName="password"
-            [toggleMask]="true"
-            [feedback]="false"
-            class="w-full form-control"
-          ></p-password>
-        </div>
-
-        <button type="submit" class="btn">Login</button>
-        <p class="text-center paragraph">
-          Don’t have an account?
-          <a href="javascript:void(0)" (click)="toggleMode()">Sign Up</a>
-        </p>
+    <form
+      *ngIf="isLoginMode"
+      class="auth-form"
+      (ngSubmit)="onLogin()"
+      [formGroup]="loginForm"
+    >
+      <div class="auth-field">
+        <label for="login-username">Username</label>
+        <input
+          id="login-username"
+          type="text"
+          class="form-control"
+          formControlName="username"
+          name="username"
+          autocomplete="username"
+          required
+        />
       </div>
+
+      <div class="auth-field">
+        <label for="login-password">Password</label>
+        <p-password
+          id="login-password"
+          formControlName="password"
+          [toggleMask]="true"
+          [feedback]="false"
+          styleClass="w-full"
+          inputStyleClass="w-full"
+        ></p-password>
+      </div>
+
+      <button type="submit" class="auth-submit">Sign in</button>
     </form>
 
-    <form *ngIf="!isLoginMode" (ngSubmit)="onSignUp()" [formGroup]="signUpForm">
-      <div class="user-form">
-        <div class="field">
-          <label for="username">Username:</label>
-          <input
-            id="username"
-            formControlName="username"
-            type="text"
-            class="form-control"
-            required
-          />
-        </div>
-
-        <div class="field">
-          <label for="firstName">First Name:</label>
-          <input
-            id="firstName"
-            formControlName="firstName"
-            type="text"
-            class="form-control"
-            required
-          />
-        </div>
-
-        <div class="field">
-          <label for="lastName">Last Name:</label>
-          <input
-            id="lastName"
-            formControlName="lastName"
-            type="text"
-            class="form-control"
-            required
-          />
-        </div>
-
-        <div class="field">
-          <label for="password">Password:</label>
-          <p-password
-            id="password"
-            formControlName="password"
-            [toggleMask]="true"
-            [feedback]="false"
-            class="w-full form-control"
-          ></p-password>
-        </div>
-
-        <button type="submit" class="btn">Register</button>
-
-        <p class="text-center paragraph">
-          Already have an account?
-          <a href="javascript:void(0)" (click)="toggleMode()">Log In</a>
-        </p>
+    <form
+      *ngIf="!isLoginMode"
+      class="auth-form"
+      (ngSubmit)="onSignUp()"
+      [formGroup]="signUpForm"
+    >
+      <div class="auth-field">
+        <label for="reg-username">Username</label>
+        <input
+          id="reg-username"
+          formControlName="username"
+          type="text"
+          class="form-control"
+          autocomplete="username"
+          required
+        />
       </div>
+
+      <div class="auth-field">
+        <label for="reg-first">First name</label>
+        <input
+          id="reg-first"
+          formControlName="firstName"
+          type="text"
+          class="form-control"
+          autocomplete="given-name"
+          required
+        />
+      </div>
+
+      <div class="auth-field">
+        <label for="reg-last">Last name</label>
+        <input
+          id="reg-last"
+          formControlName="lastName"
+          type="text"
+          class="form-control"
+          autocomplete="family-name"
+          required
+        />
+      </div>
+
+      <div class="auth-field">
+        <label for="reg-password">Password</label>
+        <p-password
+          id="reg-password"
+          formControlName="password"
+          [toggleMask]="true"
+          [feedback]="false"
+          styleClass="w-full"
+          inputStyleClass="w-full"
+        ></p-password>
+      </div>
+
+      <button type="submit" class="auth-submit">Register</button>
     </form>
+
+    <p class="auth-switch">
+      {{
+        isLoginMode
+          ? "New here?"
+          : "Already registered?"
+      }}
+      <a href="javascript:void(0)" (click)="toggleMode()">
+        {{ isLoginMode ? "Create an account" : "Sign in instead" }}
+      </a>
+    </p>
   </div>
 </div>

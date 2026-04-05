@@ -1,143 +1,175 @@
-<div class="department-container">
-  <div class="add-department-container">
-    <p-button label="ADD DEPARTMENT" (click)="openDialog(selectedDepartment, 'add')"></p-button>
+<div class="app-page">
+  <div class="app-page__header">
+    <div>
+      <h1 class="app-page__heading">Departments</h1>
+      <p class="app-page__lead">
+        Manage organizational units. Add, edit, or remove departments as needed.
+      </p>
+    </div>
+    <div class="app-page__toolbar" *ngIf="auth.isAdmin()">
+      <p-button
+        label="Add department"
+        icon="pi pi-plus"
+        (click)="openDialog({}, 'add')"
+      ></p-button>
+    </div>
   </div>
+
   <p-table
     [value]="departments"
     [paginator]="true"
     [rows]="10"
-    responsiveLayout="scroll"
   >
     <ng-template pTemplate="header">
       <tr>
-        <th style="width: 5%">ID</th>
-        <th style="width: 10%">Name</th>
-        <th style="width: 40%">Description</th>
-        <th style="width: 20%">Created At</th>
-        <th style="width: 25%">Action</th>
+        <th class="app-col-sno">S.No</th>
+        <th class="app-col-dept-name">Name</th>
+        <th class="app-col-description">Description</th>
+        <th class="app-col-created">Created</th>
+        <th class="app-col-actions">Actions</th>
       </tr>
     </ng-template>
 
-    <ng-template pTemplate="body" let-dept>
+    <ng-template pTemplate="body" let-dept let-rowIndex="rowIndex">
       <tr>
-        <td>{{ dept.id }}</td>
-        <td>{{ dept.name }}</td>
-        <td>{{ dept.description }}</td>
-        <td>{{ dept.createdAt | date : "medium" }}</td>
-        <td>
-          <div class="actions-container">
-            <p-button icon="pi pi-eye" (click)="openDialog(dept, 'view')"
-              >VIEW</p-button
-            >
-            <p-button icon="pi pi-pencil" (click)="openDialog(dept, 'edit')"
-              >EDIT</p-button
-            >
-            <p-button icon="pi pi-trash" (click)="openDialog(dept, 'delete')"
-              >DELETE</p-button
-            >
+        <td class="app-col-sno">{{ rowIndex + 1 }}</td>
+        <td class="app-col-dept-name">{{ dept.name }}</td>
+        <td
+          class="app-cell-description app-col-description"
+          [attr.title]="dept.description"
+        >
+          {{ dept.description }}
+        </td>
+        <td class="app-cell-date app-col-created">{{ dept.createdAt | date : "dd-MMM-yyyy" }}</td>
+        <td class="app-col-actions">
+          <div class="app-table-actions">
+            <p-button
+              type="button"
+              label="View"
+              icon="pi pi-eye"
+              size="small"
+              styleClass="app-table-action--view"
+              (click)="openDialog(dept, 'view')"
+            ></p-button>
+            <p-button
+              *ngIf="auth.isAdmin()"
+              type="button"
+              label="Edit"
+              icon="pi pi-pencil"
+              size="small"
+              styleClass="app-table-action--edit"
+              (click)="openDialog(dept, 'edit')"
+            ></p-button>
+            <p-button
+              *ngIf="auth.isAdmin()"
+              type="button"
+              label="Delete"
+              icon="pi pi-trash"
+              size="small"
+              styleClass="app-table-action--delete"
+              (click)="openDialog(dept, 'delete')"
+            ></p-button>
           </div>
         </td>
       </tr>
     </ng-template>
   </p-table>
 </div>
-<!-- Dialog boxes-->
+
 <p-dialog
   [(visible)]="dialogVisible"
   [modal]="true"
-  [style]="{ width: '400px' }"
-  [header]="dialogMode | titlecase"
+  [style]="{ width: 'min(92vw, 480px)' }"
+  [header]="(dialogMode | titlecase) || 'Dialog'"
 >
-  <!-- 🔹 VIEW MODE -->
   <ng-container *ngIf="dialogMode === 'view'">
     <p><b>ID:</b> {{ selectedDepartment.id }}</p>
     <p><b>Name:</b> {{ selectedDepartment.name }}</p>
     <p><b>Description:</b> {{ selectedDepartment.description }}</p>
     <p>
-      <b>Created At:</b> {{ selectedDepartment.createdAt | date : "medium" }}
+      <b>Created:</b>
+      <span class="app-date-display">{{
+        selectedDepartment.createdAt | date : "dd-MMM-yyyy"
+      }}</span>
     </p>
   </ng-container>
 
-
-   <!-- 🔹 ADD MODE -->
   <ng-container *ngIf="dialogMode === 'add'">
-    <div class="form-group">
-      <label>Name:</label>
+    <div class="app-form-group">
+      <label for="dept-add-name">Name</label>
       <input
+        id="dept-add-name"
         type="text"
         [(ngModel)]="selectedDepartment.name"
-        class="p-inputtext p-component"
       />
     </div>
-    <div class="form-group">
-      <label>Description:</label>
+    <div class="app-form-group">
+      <label for="dept-add-desc">Description</label>
       <textarea
+        id="dept-add-desc"
         [(ngModel)]="selectedDepartment.description"
-        class="p-inputtext p-component"
       ></textarea>
     </div>
   </ng-container>
 
-
-  <!-- 🔹 EDIT MODE -->
   <ng-container *ngIf="dialogMode === 'edit'">
-    <div class="form-group">
-      <label>Name:</label>
+    <div class="app-form-group">
+      <label for="dept-edit-name">Name</label>
       <input
+        id="dept-edit-name"
         type="text"
         [(ngModel)]="selectedDepartment.name"
-        class="p-inputtext p-component"
       />
     </div>
-    <div class="form-group">
-      <label>Description:</label>
+    <div class="app-form-group">
+      <label for="dept-edit-desc">Description</label>
       <textarea
+        id="dept-edit-desc"
         [(ngModel)]="selectedDepartment.description"
-        class="p-inputtext p-component"
       ></textarea>
     </div>
   </ng-container>
 
-  <!-- 🔹 DELETE MODE -->
   <ng-container *ngIf="dialogMode === 'delete'">
     <p>
-      Are you sure you want to delete
-      <b>{{ selectedDepartment.name }}</b
-      >?
+      Delete <b>{{ selectedDepartment.name }}</b>? This cannot be undone.
     </p>
   </ng-container>
 
-  <!-- 🔹 FOOTER BUTTONS -->
   <ng-template pTemplate="footer">
-    <div class="dialog-footer">
+    <div
+      class="app-dialog-footer"
+      *ngIf="auth.isAdmin() && (dialogMode === 'edit' || dialogMode === 'add')"
+    >
       <p-button
         *ngIf="dialogMode === 'edit'"
-        label="Save"
+        label="Save changes"
         icon="pi pi-check"
         (click)="saveChanges()"
       ></p-button>
-      
       <p-button
         *ngIf="dialogMode === 'add'"
-        label="Add"
+        label="Add department"
         icon="pi pi-check"
         (click)="addDepartment()"
       ></p-button>
-
-      <div *ngIf="dialogMode === 'delete'" class="delete-actions">
-        <p-button
-          label="Cancel"
-          icon="pi pi-times"
-          class="p-button-text"
-          (click)="closeDialog()"
-        ></p-button>
-        <p-button
-          label="Delete"
-          icon="pi pi-trash"
-          class="p-button-danger"
-          (click)="confirmDelete()"
-        ></p-button>
-      </div>
+    </div>
+    <div
+      class="app-dialog-footer app-dialog-footer--split"
+      *ngIf="auth.isAdmin() && dialogMode === 'delete'"
+    >
+      <p-button
+        label="Cancel"
+        icon="pi pi-times"
+        [outlined]="true"
+        (click)="closeDialog()"
+      ></p-button>
+      <p-button
+        label="Delete"
+        icon="pi pi-trash"
+        severity="danger"
+        (click)="confirmDelete()"
+      ></p-button>
     </div>
   </ng-template>
 </p-dialog>

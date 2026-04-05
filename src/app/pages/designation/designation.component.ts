@@ -6,11 +6,19 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
 import { TableModule } from 'primeng/table';
+import { MessageService } from 'primeng/api';
+import { resolveApiMessage } from '../../utils/api-message.util';
+import { AuthService } from '../../services/auth.service';
 @Component({
   selector: 'app-designation',
-  imports: [ButtonModule,CommonModule,FormsModule,DialogModule,TableModule],
+  imports: [
+    ButtonModule,
+    CommonModule,
+    FormsModule,
+    DialogModule,
+    TableModule,
+  ],
   templateUrl: './designation.component.html',
-  styleUrl: './designation.component.scss',
 })
 export class DesignationComponent {
    designations: any[] = [];
@@ -18,7 +26,12 @@ export class DesignationComponent {
    dialogVisible: boolean = false;
    dialogMode: 'view' | 'edit' | 'delete' | 'add' | '' = '';
  
-   constructor(private api: ApiClient, private loader: NgxUiLoaderService) {}
+   constructor(
+     private api: ApiClient,
+     private loader: NgxUiLoaderService,
+     private messageService: MessageService,
+     readonly auth: AuthService
+   ) {}
  
    ngOnInit(): void {
      this.getAllDesignations();
@@ -32,8 +45,12 @@ export class DesignationComponent {
          this.loader.stop();
        },
        error: (err) => {
-         console.error('Error fetching designations', err);
          this.loader.stop();
+         this.messageService.add({
+           severity: 'error',
+           summary: 'Designations',
+           detail: resolveApiMessage(err, 'Could not load designations.'),
+         });
        },
      });
    }
@@ -62,10 +79,19 @@ export class DesignationComponent {
            this.getAllDesignations();
            this.closeDialog();
            this.loader.stop();
+           this.messageService.add({
+             severity: 'success',
+             summary: 'Deleted',
+             detail: 'Designation removed successfully.',
+           });
          },
          error: (err) => {
-           console.error('Delete failed', err), 
            this.loader.stop();
+           this.messageService.add({
+             severity: 'error',
+             summary: 'Delete failed',
+             detail: resolveApiMessage(err, 'Could not delete designation.'),
+           });
          },
        });
    }
@@ -81,13 +107,22 @@ export class DesignationComponent {
          )
          .subscribe({
            next: () => {
-              this.closeDialog();
+             this.closeDialog();
              this.getAllDesignations();
-            
-             
+             this.loader.stop();
+             this.messageService.add({
+               severity: 'success',
+               summary: 'Saved',
+               detail: 'Designation updated successfully.',
+             });
            },
            error: (err) => {
-             console.error('Update failed', err), this.loader.stop();
+             this.loader.stop();
+             this.messageService.add({
+               severity: 'error',
+               summary: 'Update failed',
+               detail: resolveApiMessage(err, 'Could not update designation.'),
+             });
            },
          });
      }
@@ -99,9 +134,19 @@ export class DesignationComponent {
          this.getAllDesignations();
          this.closeDialog();
          this.loader.stop();
+         this.messageService.add({
+           severity: 'success',
+           summary: 'Added',
+           detail: 'Designation created successfully.',
+         });
        },
        error: (err) => {
-         console.error('Update failed', err), this.loader.stop();
+         this.loader.stop();
+         this.messageService.add({
+           severity: 'error',
+           summary: 'Could not add',
+           detail: resolveApiMessage(err, 'Could not create designation.'),
+         });
        },
      });
    }

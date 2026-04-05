@@ -1,0 +1,24 @@
+<div class="app-shell">
+  <aside class="app-sidebar">
+    <app-navbar />
+  </aside>
+  <div class="app-main">
+    <header class="app-topbar">
+      <h1 class="app-topbar__title">{{ pageTitle }}</h1>
+      <div class="app-topbar__user">
+        <div class="app-topbar__meta">
+          <span class="app-topbar__name">{{ displayName }}</span>
+          <span class="app-topbar__role">{{ displayRole }}</span>
+        </div>
+        <button type="button" class="app-topbar__logout" (click)="logout()">
+          <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+          Log out
+        </button>
+      </div>
+    </header>
+    <main class="app-content">
+      <router-outlet />
+    </main>
+  </div>
+</div>
+<ngx-ui-loader />
