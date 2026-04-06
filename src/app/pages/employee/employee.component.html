@@ -201,6 +201,21 @@
       <label for="emp-add-hire">Hire date</label>
       <input id="emp-add-hire" type="date" [(ngModel)]="addHireDate" />
     </div>
+    <div class="app-form-group">
+      <label for="emp-add-role">Role (access level)</label>
+      <p-select
+        inputId="emp-add-role"
+        [(ngModel)]="addRole"
+        [options]="roleSelectOptions"
+        optionLabel="label"
+        optionValue="value"
+        [appendTo]="'body'"
+      ></p-select>
+      <p class="app-form-hint">
+        Applies to the linked or new login. You can promote a self-registered
+        account from Employee to Manager or Admin here.
+      </p>
+    </div>
   </ng-container>
 
   <ng-container *ngIf="dialogMode === 'edit'">

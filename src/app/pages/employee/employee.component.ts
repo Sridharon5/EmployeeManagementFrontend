@@ -52,6 +52,18 @@ export class EmployeeComponent {
   addDesignationId: number | null = null;
   addHireDate = '';
 
+  /** RBAC role stored on {@link User}; sent with {@code POST /employees/add}. */
+  addRole: 'ADMIN' | 'MANAGER' | 'EMPLOYEE' = 'EMPLOYEE';
+
+  readonly roleSelectOptions: {
+    value: 'ADMIN' | 'MANAGER' | 'EMPLOYEE';
+    label: string;
+  }[] = [
+    { value: 'EMPLOYEE', label: 'Employee — day-to-day tasks' },
+    { value: 'MANAGER', label: 'Manager — assign & update tasks' },
+    { value: 'ADMIN', label: 'Administrator — full access' },
+  ];
+
   constructor(
     private api: ApiClient,
     private loader: NgxUiLoaderService,
@@ -99,6 +111,7 @@ export class EmployeeComponent {
     this.addDepartmentId = null;
     this.addDesignationId = null;
     this.addHireDate = '';
+    this.addRole = 'EMPLOYEE';
     this.unlinkedUsers = [];
     this.departmentsList = [];
     this.designationsList = [];
@@ -253,6 +266,7 @@ export class EmployeeComponent {
       departmentId: this.addDepartmentId,
       designationId: this.addDesignationId,
       hireDate: hire,
+      role: this.addRole,
     };
 
     if (this.addMode === 'existing') {

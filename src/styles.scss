@@ -1075,13 +1075,33 @@ p-button {
   width: 20%;
 }
 
-// Tasks — admin: 4 + 42 + 10 + 12 + 10 + 22 = 100
+// Tasks — admin: 4 + 30 + 12 + 10 + 12 + 10 + 22 = 100 (priority wide enough for full labels)
 .app-page p-table .app-col-task-title {
-  width: 42%;
+  width: 30%;
 }
 
+/* My tasks: 4 + 32 + 11 + 10 + 11 + 32 = 100 — wider Actions for 3 labeled buttons */
 .app-page p-table .app-col-task-title.app-col-task-title--user {
-  width: 47%;
+  width: 32%;
+}
+
+.app-page p-table th.app-col-task-priority,
+.app-page p-table td.app-col-task-priority {
+  width: 12%;
+  white-space: nowrap;
+  vertical-align: middle !important;
+  box-sizing: border-box;
+}
+
+.app-page p-table.app-tasks-table--employee .app-col-task-priority {
+  width: 11%;
+}
+
+/* Badges must show full text — do not ellipsis (was truncating e.g. MEDIUM → MED…) */
+.app-page p-table .task-priority-badge-wrap {
+  display: inline-block;
+  vertical-align: middle;
+  max-width: none;
 }
 
 .app-page p-table .app-col-task-due {
@@ -1089,7 +1109,7 @@ p-button {
 }
 
 .app-page p-table .app-col-task-due.app-col-task-due--user {
-  width: 13%;
+  width: 10%;
 }
 
 .app-page p-table .app-col-task-assigned {
@@ -1101,10 +1121,10 @@ p-button {
 }
 
 .app-page p-table .app-col-task-status.app-col-task-status--user {
-  width: 14%;
+  width: 11%;
 }
 
-// Actions — 22% fits three compact buttons without forcing table wider than 100%
+// Actions — admins/managers: 22%. Employees: 32% + wrap (View / Start work / Close ticket)
 .app-page p-table th.app-col-actions,
 .app-page p-table td.app-col-actions,
 .app-page p-table th.app-col-actions--wide,
@@ -1113,6 +1133,21 @@ p-button {
   min-width: 0 !important;
   white-space: nowrap;
   vertical-align: middle !important;
+  box-sizing: border-box;
+}
+
+.app-page p-table th.app-col-actions.app-col-actions--employee,
+.app-page p-table td.app-col-actions.app-col-actions--employee {
+  width: 32%;
+  white-space: normal;
+}
+
+.app-page p-table td.app-col-actions--employee .app-table-actions {
+  display: flex;
+  flex-flow: row wrap;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   box-sizing: border-box;
 }
 
