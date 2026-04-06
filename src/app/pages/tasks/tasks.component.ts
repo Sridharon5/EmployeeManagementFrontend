@@ -15,6 +15,7 @@ import { resolveApiMessage } from '../../utils/api-message.util';
 import { AuthService } from '../../services/auth.service';
 import {
   SpringPage,
+  TaskPriority,
   TaskResponseDto,
   TaskStatus,
 } from '../../models/task-dashboard.models';
@@ -30,6 +31,56 @@ import {
     TableModule,
   ],
   templateUrl: './tasks.component.html',
+  styles: [
+    `
+      .task-priority-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        align-items: flex-end;
+        margin-bottom: 1rem;
+      }
+      .task-priority-toolbar .app-form-group {
+        margin-bottom: 0;
+        min-width: 11rem;
+      }
+      .task-priority-toolbar label {
+        display: block;
+        font-size: 0.8rem;
+        margin-bottom: 0.25rem;
+        opacity: 0.85;
+      }
+      .task-priority-badge {
+        display: inline-block;
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        padding: 0.2rem 0.5rem;
+        border-radius: 0.25rem;
+        text-transform: uppercase;
+      }
+      .task-priority-badge--low {
+        background: var(--surface-200, #e9ecef);
+        color: var(--text-color-secondary, #495057);
+      }
+      .task-priority-badge--medium {
+        background: rgba(59, 130, 246, 0.15);
+        color: #2563eb;
+      }
+      .task-priority-badge--high {
+        background: rgba(245, 158, 11, 0.2);
+        color: #b45309;
+      }
+      .task-priority-badge--critical {
+        background: rgba(220, 38, 38, 0.15);
+        color: #b91c1c;
+      }
+      .task-priority-badge--unknown {
+        background: var(--surface-100, #f1f3f5);
+        color: var(--text-color-secondary, #868e96);
+      }
+    `,
+  ],
 })
 export class TasksComponent {
   private readonly locale = inject(LOCALE_ID);
@@ -42,6 +93,11 @@ export class TasksComponent {
   pageSize = 5;
   lazyFirst = 0;
   loading = false;
+
+  /** Empty string = no filter (all priorities). */
+  priorityFilter: TaskPriority | '' = '';
+  /** Controls Spring sort parameters sent with each page load. */
+  sortMode: 'dueDateAsc' | 'dueDateDesc' | 'priorityDesc' | 'priorityAsc' = 'dueDateAsc';
 
   selectedTask: Record<string, unknown> | null = null;
   dialogVisible = false;
@@ -63,6 +119,38 @@ export class TasksComponent {
     }));
   }
 
+  readonly taskPriorityLevels: TaskPriority[] = [
+    'LOW',
+    'MEDIUM',
+    'HIGH',
+    'CRITICAL',
+  ];
+
+  readonly priorityFilterOptions: { value: TaskPriority | ''; label: string }[] =
+    [
+      { value: '', label: 'All priorities' },
+      ...this.taskPriorityLevels.map((p) => ({
+        value: p,
+        label: this.formatPriority(p),
+      })),
+    ];
+
+  readonly priorityFormOptions: { value: TaskPriority; label: string }[] =
+    this.taskPriorityLevels.map((p) => ({
+      value: p,
+      label: this.formatPriority(p),
+    }));
+
+  readonly sortModeOptions: {
+    value: 'dueDateAsc' | 'dueDateDesc' | 'priorityDesc' | 'priorityAsc';
+    label: string;
+  }[] = [
+    { value: 'dueDateAsc', label: 'Due date (soonest first)' },
+    { value: 'dueDateDesc', label: 'Due date (latest first)' },
+    { value: 'priorityDesc', label: 'Priority (urgent first)' },
+    { value: 'priorityAsc', label: 'Priority (low first)' },
+  ];
+
   constructor(
     private api: ApiClient,
     private loader: NgxUiLoaderService,
@@ -71,13 +159,16 @@ export class TasksComponent {
   ) {}
 
   get tasksPageTitle(): string {
-    return this.auth.isAdmin() ? 'Tasks' : 'My tasks';
+    return this.auth.canManageTasks() ? 'Tasks' : 'My tasks';
   }
 
   get tasksPageLead(): string {
-    return this.auth.isAdmin()
-      ? 'Track assignments, due dates, and status across the organization.'
-      : 'Work assigned to you. Start work, then close the ticket when done.';
+    if (this.auth.canManageTasks()) {
+      return this.auth.isAdmin()
+        ? 'Track assignments, due dates, and status across the organization.'
+        : 'Assign work to employees and keep tasks moving. Task deletion is limited to administrators.';
+    }
+    return 'Work assigned to you. Start work, then close the ticket when done.';
   }
 
   onLazyLoad(event: TableLazyLoadEvent): void {
@@ -105,15 +196,39 @@ export class TasksComponent {
     };
   }
 
+  private sortParamsForApi(): { key: string; value: string }[] {
+    switch (this.sortMode) {
+      case 'dueDateDesc':
+        return [{ key: 'sort', value: 'dueDate,desc' }];
+      case 'priorityDesc':
+        return [
+          { key: 'sort', value: 'priority,desc' },
+          { key: 'sort', value: 'dueDate,asc' },
+        ];
+      case 'priorityAsc':
+        return [
+          { key: 'sort', value: 'priority,asc' },
+          { key: 'sort', value: 'dueDate,asc' },
+        ];
+      default:
+        return [{ key: 'sort', value: 'dueDate,asc' }];
+    }
+  }
+
   loadPage(page: number, size: number): void {
     this.loading = true;
     this.loader.start();
-    const scope = this.auth.isAdmin() ? 'all' : 'my';
-    const params = new HttpParams()
+    const scope = this.auth.canManageTasks() ? 'all' : 'my';
+    let params = new HttpParams()
       .set('scope', scope)
       .set('page', String(page))
-      .set('size', String(size))
-      .set('sort', 'dueDate,asc');
+      .set('size', String(size));
+    for (const { key, value } of this.sortParamsForApi()) {
+      params = params.append(key, value);
+    }
+    if (this.priorityFilter) {
+      params = params.set('priority', this.priorityFilter);
+    }
     this.api.get('tasks', { params }).subscribe({
       next: (raw) => {
         const p = this.parsePage(raw);
@@ -183,7 +298,7 @@ export class TasksComponent {
   assigneeLabel(task: TaskResponseDto): string {
     const myId = this.auth.getUserId();
     if (
-      !this.auth.isAdmin() &&
+      !this.auth.canManageTasks() &&
       task.assignedToUserId != null &&
       myId != null &&
       task.assignedToUserId === myId
@@ -212,6 +327,28 @@ export class TasksComponent {
       .split('_')
       .map((w) => w.charAt(0) + w.slice(1).toLowerCase())
       .join(' ');
+  }
+
+  formatPriority(p: unknown): string {
+    if (p == null || p === '') return '—';
+    return String(p)
+      .split('_')
+      .map((w) => w.charAt(0) + w.slice(1).toLowerCase())
+      .join(' ');
+  }
+
+  priorityBadgeClass(priority: unknown): string {
+    const p = (priority as string) ?? '';
+    if (p === 'LOW') return 'task-priority-badge task-priority-badge--low';
+    if (p === 'MEDIUM') return 'task-priority-badge task-priority-badge--medium';
+    if (p === 'HIGH') return 'task-priority-badge task-priority-badge--high';
+    if (p === 'CRITICAL') return 'task-priority-badge task-priority-badge--critical';
+    return 'task-priority-badge task-priority-badge--unknown';
+  }
+
+  onPriorityOrSortChange(): void {
+    this.lazyFirst = 0;
+    this.loadPage(0, this.pageSize);
   }
 
   assigneeLabelFromSelected(): string {
@@ -263,13 +400,13 @@ export class TasksComponent {
 
   canUserStart(task: TaskResponseDto): boolean {
     return (
-      !this.auth.isAdmin() &&
+      !this.auth.canManageTasks() &&
       (task.status === 'PENDING' || task.status === 'OVERDUE')
     );
   }
 
   canUserClose(task: TaskResponseDto): boolean {
-    return !this.auth.isAdmin() && this.isOpenStatus(task.status);
+    return !this.auth.canManageTasks() && this.isOpenStatus(task.status);
   }
 
   openDialog(
@@ -283,12 +420,17 @@ export class TasksComponent {
         dueDate: '',
         assignedToEmployeeId: null,
         status: 'PENDING',
+        priority: 'MEDIUM',
       };
     } else {
       this.selectedTask = { ...(task as Record<string, unknown>) };
       const d = this.selectedTask['dueDate'];
       if (typeof d === 'string' && d.length > 10) {
         this.selectedTask['dueDate'] = d.slice(0, 10);
+      }
+      const pr = this.selectedTask['priority'];
+      if (pr == null || pr === '') {
+        this.selectedTask['priority'] = 'MEDIUM';
       }
     }
     if (mode === 'close') {
@@ -297,7 +439,7 @@ export class TasksComponent {
           ? String((task as TaskResponseDto).completionNote)
           : '';
     }
-    if (this.auth.isAdmin() && (mode === 'add' || mode === 'edit')) {
+    if (this.auth.canManageTasks() && (mode === 'add' || mode === 'edit')) {
       this.loadAssigneeOptions();
     }
     this.dialogMode = mode;
@@ -414,6 +556,7 @@ export class TasksComponent {
       description: t['description'] || null,
       dueDate: t['dueDate'] || null,
       status: t['status'],
+      priority: t['priority'] || 'MEDIUM',
       completionNote: t['completionNote'] || null,
       assignedToEmployeeId: assigneeId,
     };
@@ -462,6 +605,7 @@ export class TasksComponent {
       dueDate: due,
       assignedToEmployeeId: assigneeId,
       status: (t['status'] as string) || 'PENDING',
+      priority: (t['priority'] as TaskPriority) || 'MEDIUM',
     };
     this.loader.start();
     this.api.post('tasks/add', body).subscribe({

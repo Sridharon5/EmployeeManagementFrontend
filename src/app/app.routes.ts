@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { LoginComponent } from './pages/login/login.component';
 import { AuthGuard } from './guards/auth.guard';
+import { ManagerOrAdminGuard } from './guards/manager-or-admin.guard';
 import { LoginLayoutComponent } from './layouts/login-layout/login-layout.component';
 import { MainLayoutComponent } from './layouts/main-layout/main-layout.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
@@ -23,7 +24,8 @@ export const routes: Routes = [
     children: [
       {
         path: 'employee',
-        component: EmployeeComponent /*, canActivate: [AuthGuard] */,
+        component: EmployeeComponent,
+        canActivate: [ManagerOrAdminGuard],
       },
       {
         path: 'tasks',
@@ -36,10 +38,12 @@ export const routes: Routes = [
       {
         path: 'departments',
         component: DepartmentsComponent,
+        canActivate: [ManagerOrAdminGuard],
       },
       {
         path: 'designation',
         component: DesignationComponent,
+        canActivate: [ManagerOrAdminGuard],
       },
     ],
   },

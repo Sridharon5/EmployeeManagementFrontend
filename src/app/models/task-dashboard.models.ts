@@ -5,12 +5,15 @@ export type TaskStatus =
   | 'OVERDUE'
   | 'REJECTED';
 
+export type TaskPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+
 export interface TaskResponseDto {
   id: number;
   title: string;
   description?: string | null;
   dueDate?: string | null;
   status: TaskStatus;
+  priority?: TaskPriority | null;
   createdAt?: string | null;
   updatedAt?: string | null;
   closedAt?: string | null;

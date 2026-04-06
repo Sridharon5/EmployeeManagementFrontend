@@ -184,7 +184,7 @@ export class LoginComponent implements OnInit {
       password: this.signUpForm.value.password,
       firstName: this.signUpForm.value.firstName,
       lastName: this.signUpForm.value.lastName,
-      role: 'USER',
+      role: 'EMPLOYEE',
     };
     this.loader.start();
     this.api.post('auth/register', payload).subscribe({

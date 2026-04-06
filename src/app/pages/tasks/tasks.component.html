@@ -6,7 +6,7 @@
         {{ tasksPageLead }}
       </p>
     </div>
-    <div class="app-page__toolbar" *ngIf="auth.isAdmin()">
+    <div class="app-page__toolbar" *ngIf="auth.canManageTasks()">
       <p-button
         label="Add task"
         icon="pi pi-plus"
@@ -15,9 +15,37 @@
     </div>
   </div>
 
+  <div class="task-priority-toolbar">
+    <div class="app-form-group">
+      <label for="task-filter-priority">Priority</label>
+      <p-select
+        inputId="task-filter-priority"
+        [(ngModel)]="priorityFilter"
+        (ngModelChange)="onPriorityOrSortChange()"
+        [options]="priorityFilterOptions"
+        optionLabel="label"
+        optionValue="value"
+        [appendTo]="'body'"
+      ></p-select>
+    </div>
+    <div class="app-form-group">
+      <label for="task-sort-mode">Sort</label>
+      <p-select
+        inputId="task-sort-mode"
+        [(ngModel)]="sortMode"
+        (ngModelChange)="onPriorityOrSortChange()"
+        [options]="sortModeOptions"
+        optionLabel="label"
+        optionValue="value"
+        [appendTo]="'body'"
+      ></p-select>
+    </div>
+  </div>
+
   <p-table
     [value]="tasks"
     [lazy]="true"
+    [first]="lazyFirst"
     (onLazyLoad)="onLazyLoad($event)"
     [paginator]="true"
     [rows]="pageSize"
@@ -29,22 +57,23 @@
         <th class="app-col-sno">S.No</th>
         <th
           class="app-col-task-title"
-          [class.app-col-task-title--user]="!auth.isAdmin()"
+          [class.app-col-task-title--user]="!auth.canManageTasks()"
         >
           Task
         </th>
+        <th>Priority</th>
         <th
           class="app-col-task-due"
-          [class.app-col-task-due--user]="!auth.isAdmin()"
+          [class.app-col-task-due--user]="!auth.canManageTasks()"
         >
           Due
         </th>
-        <th *ngIf="auth.isAdmin()" class="app-col-task-assigned">
+        <th *ngIf="auth.canManageTasks()" class="app-col-task-assigned">
           Assigned to
         </th>
         <th
           class="app-col-task-status"
-          [class.app-col-task-status--user]="!auth.isAdmin()"
+          [class.app-col-task-status--user]="!auth.canManageTasks()"
         >
           Status
         </th>
@@ -57,26 +86,31 @@
         <td class="app-col-sno">{{ rowDisplayIndex(rowIndex) }}</td>
         <td
           class="app-cell-description app-col-task-title"
-          [class.app-col-task-title--user]="!auth.isAdmin()"
+          [class.app-col-task-title--user]="!auth.canManageTasks()"
           [attr.title]="row.title"
         >
           {{ row.title }}
         </td>
+        <td>
+          <span [ngClass]="priorityBadgeClass(row.priority ?? null)"
+            >{{ formatPriority(row.priority) }}</span
+          >
+        </td>
         <td
           class="app-cell-date app-col-task-due"
-          [class.app-col-task-due--user]="!auth.isAdmin()"
+          [class.app-col-task-due--user]="!auth.canManageTasks()"
         >
           <ng-container *ngIf="row.dueDate; else noDue">{{
             row.dueDate | date : "dd-MMM-yyyy"
           }}</ng-container>
           <ng-template #noDue>—</ng-template>
         </td>
-        <td *ngIf="auth.isAdmin()" class="app-cell-description app-col-task-assigned">
+        <td *ngIf="auth.canManageTasks()" class="app-cell-description app-col-task-assigned">
           {{ assigneeLabel(row) }}
         </td>
         <td
           class="app-col-task-status"
-          [class.app-col-task-status--user]="!auth.isAdmin()"
+          [class.app-col-task-status--user]="!auth.canManageTasks()"
         >
           {{ formatStatus(row.status) }}
         </td>
@@ -109,7 +143,7 @@
               (click)="openDialog(row, 'close')"
             ></p-button>
             <p-button
-              *ngIf="auth.isAdmin()"
+              *ngIf="auth.canManageTasks()"
               type="button"
               label="Edit"
               icon="pi pi-pencil"
@@ -133,7 +167,7 @@
 
     <ng-template pTemplate="emptymessage">
       <tr>
-        <td [attr.colspan]="auth.isAdmin() ? 6 : 5" class="app-table-empty">
+        <td [attr.colspan]="auth.canManageTasks() ? 7 : 6" class="app-table-empty">
           No tasks found.
         </td>
       </tr>
@@ -164,8 +198,16 @@
       </ng-container>
       <ng-template #noDueV>—</ng-template>
     </p>
-    <p *ngIf="auth.isAdmin()">
+    <p *ngIf="auth.canManageTasks()">
       <b>Assigned to:</b> {{ assigneeLabelFromSelected() }}
+    </p>
+    <p>
+      <b>Priority:</b>
+      <span
+        [ngClass]="priorityBadgeClass(selectedTask['priority'] ?? null)"
+        style="margin-left: 0.35rem"
+        >{{ formatPriority(selectedTask['priority']) }}</span
+      >
     </p>
     <p><b>Status:</b> {{ formatStatus(selectedTask['status']) }}</p>
     <p *ngIf="selectedTask['completionNote']">
@@ -225,6 +267,17 @@
       ></p-select>
     </div>
     <div class="app-form-group">
+      <label for="task-add-priority">Priority</label>
+      <p-select
+        inputId="task-add-priority"
+        [(ngModel)]="selectedTask['priority']"
+        [options]="priorityFormOptions"
+        optionLabel="label"
+        optionValue="value"
+        [appendTo]="'body'"
+      ></p-select>
+    </div>
+    <div class="app-form-group">
       <label for="task-add-status">Status</label>
       <p-select
         inputId="task-add-status"
@@ -270,6 +323,17 @@
       ></p-select>
     </div>
     <div class="app-form-group">
+      <label for="task-edit-priority">Priority</label>
+      <p-select
+        inputId="task-edit-priority"
+        [(ngModel)]="selectedTask['priority']"
+        [options]="priorityFormOptions"
+        optionLabel="label"
+        optionValue="value"
+        [appendTo]="'body'"
+      ></p-select>
+    </div>
+    <div class="app-form-group">
       <label for="task-edit-status">Status</label>
       <p-select
         inputId="task-edit-status"
@@ -299,7 +363,7 @@
   <ng-template pTemplate="footer">
     <div
       class="app-dialog-footer"
-      *ngIf="auth.isAdmin() && (dialogMode === 'edit' || dialogMode === 'add')"
+      *ngIf="auth.canManageTasks() && (dialogMode === 'edit' || dialogMode === 'add')"
     >
       <p-button
         *ngIf="dialogMode === 'edit'"

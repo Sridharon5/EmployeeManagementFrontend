@@ -25,7 +25,7 @@ export class DashboardComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    if (this.auth.isAdmin()) {
+    if (this.auth.showOrgWideDashboard()) {
       this.getKeyPointIndicators();
     } else {
       this.loadUserDashboard();

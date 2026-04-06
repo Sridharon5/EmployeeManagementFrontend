@@ -134,7 +134,9 @@ export class AuthService {
   }
 
   private static normalizeRole(value: string | null): string {
-    return (value ?? '').trim().toUpperCase();
+    const r = (value ?? '').trim().toUpperCase();
+    if (r === 'USER') return 'EMPLOYEE';
+    return r;
   }
 
   setRole(value: string) {
@@ -148,6 +150,29 @@ export class AuthService {
 
   isAdmin(): boolean {
     return this.role === 'ADMIN';
+  }
+
+  isManager(): boolean {
+    return this.role === 'MANAGER';
+  }
+
+  isEmployee(): boolean {
+    return this.role === 'EMPLOYEE';
+  }
+
+  /** Create/assign tasks, see org-wide task lists, edit tasks (not delete — admin only in UI). */
+  canManageTasks(): boolean {
+    return this.role === 'ADMIN' || this.role === 'MANAGER';
+  }
+
+  /** Departments, designations, employee directory (view for manager; admin can mutate). */
+  canViewOrgStructure(): boolean {
+    return this.role === 'ADMIN' || this.role === 'MANAGER';
+  }
+
+  /** KPI dashboard (ADMIN + MANAGER). */
+  showOrgWideDashboard(): boolean {
+    return this.role === 'ADMIN' || this.role === 'MANAGER';
   }
 
   setJwtToken(value: string) {

@@ -25,7 +25,7 @@ export class MainLayoutComponent {
   get pageTitle(): string {
     const path = this.router.url.split('?')[0];
     const segment = path.split('/').filter(Boolean).pop() || 'dashboard';
-    if (segment === 'tasks' && !this.auth.isAdmin()) {
+    if (segment === 'tasks' && !this.auth.canManageTasks()) {
       return 'My tasks';
     }
     const titles: Record<string, string> = {

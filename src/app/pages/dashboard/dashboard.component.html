@@ -1,4 +1,4 @@
-<div class="dashboard-page" *ngIf="auth.isAdmin()">
+<div class="dashboard-page" *ngIf="auth.showOrgWideDashboard()">
   <h1 class="dashboard-page__title">Dashboard</h1>
   <p class="dashboard-page__lead">
     Key metrics across your organization at a glance.
@@ -17,7 +17,7 @@
   </div>
 </div>
 
-<div class="dashboard-page dashboard-page--user" *ngIf="!auth.isAdmin()">
+<div class="dashboard-page dashboard-page--user" *ngIf="!auth.showOrgWideDashboard()">
   <h1 class="dashboard-page__title">My dashboard</h1>
   <p class="dashboard-page__lead">
     Your open work, upcoming due dates, and recently completed tasks.
