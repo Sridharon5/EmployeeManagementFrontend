@@ -4,6 +4,15 @@
       {{ isLoginMode ? "Sign in" : "Create account" }}
     </h2>
 
+    <div *ngIf="isLoginMode" class="auth-demo-credentials">
+      <p class="auth-demo-credentials__heading">Try a demo (one tap)</p>
+      <div class="auth-demo-actions">
+        <button type="button" class="auth-demo-btn" (click)="tryDemo('admin')">Admin view</button>
+        <button type="button" class="auth-demo-btn" (click)="tryDemo('manager')">Manager view</button>
+        <button type="button" class="auth-demo-btn" (click)="tryDemo('employee')">Employee view</button>
+      </div>
+    </div>
+
     <form
       *ngIf="isLoginMode"
       class="auth-form"
@@ -44,6 +53,18 @@
       (ngSubmit)="onSignUp()"
       [formGroup]="signUpForm"
     >
+      <div class="auth-demo-credentials auth-demo-credentials--signup">
+        <p class="auth-demo-credentials__hint">
+          Want to explore first? Use a demo role — you’ll switch to sign in and we’ll log you in
+          automatically.
+        </p>
+        <div class="auth-demo-actions">
+          <button type="button" class="auth-demo-btn" (click)="tryDemo('admin')">Admin view</button>
+          <button type="button" class="auth-demo-btn" (click)="tryDemo('manager')">Manager view</button>
+          <button type="button" class="auth-demo-btn" (click)="tryDemo('employee')">Employee view</button>
+        </div>
+      </div>
+
       <div class="auth-field">
         <label for="reg-username">Username</label>
         <input

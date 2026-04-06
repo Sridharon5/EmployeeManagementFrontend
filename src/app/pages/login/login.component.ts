@@ -210,4 +210,26 @@ export class LoginComponent implements OnInit {
     this.isLoginMode = !this.isLoginMode;
     this.messageService.clear();
   }
+
+  private readonly demoLogins: Record<
+    'admin' | 'manager' | 'employee',
+    { username: string; password: string }
+  > = {
+    admin: { username: 'admin', password: 'admin' },
+    manager: { username: 'manager', password: 'admin' },
+    employee: { username: 'employee', password: 'admin' },
+  };
+
+  /**
+   * Fills known demo credentials and submits login (no need to copy/paste).
+   * Safe to call from the register view — switches to sign-in first.
+   */
+  tryDemo(role: keyof typeof this.demoLogins): void {
+    const creds = this.demoLogins[role];
+    this.isLoginMode = true;
+    this.loginForm.setValue({ username: creds.username, password: creds.password });
+    this.loginForm.markAsPristine();
+    this.loginForm.markAsUntouched();
+    queueMicrotask(() => this.onLogin());
+  }
 }
